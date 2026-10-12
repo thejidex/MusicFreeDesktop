@@ -24,6 +24,11 @@ const _defaultAppConfig: IAppConfig =  {
     "lyric.fontSize": 54,
     "shortCut.enableLocal": true,
     "shortCut.enableGlobal": false,
+    "shortCut.shortcuts": {
+        "play/pause": { local: ["space"] },
+        "skip-previous": { local: ["left"] },
+        "skip-next": { local: ["right"] },
+    },
     "download.concurrency": 5,
     "normal.musicListColumnsShown": [],
     "backup.resumeBehavior": "append",

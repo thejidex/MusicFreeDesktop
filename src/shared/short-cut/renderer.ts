@@ -47,6 +47,10 @@ class ShortCut {
         }
         this.unregisterLocalShortCut(key);
         const callback = (evt: KeyboardEvent) => {
+            // Shortcut recording inputs must capture keys without controlling playback.
+            if ((evt.target as HTMLElement)?.dataset["capture"] === "true") {
+                return;
+            }
             if (AppConfig.getConfig("shortCut.enableLocal")) {
                 evt.preventDefault();
                 messageBus.sendCommand(shortCutKeysCommands[key]);
