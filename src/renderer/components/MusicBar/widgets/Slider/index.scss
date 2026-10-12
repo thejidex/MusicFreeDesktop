@@ -4,24 +4,28 @@
   position: absolute;
   width: 100%;
   left: 0;
-  $height: 12px;
+  $height: 18px;
   top: - math.div($height, 2);
   height: $height;
   display: flex;
   justify-content: center;
   align-items: center;
+  cursor: pointer;
   --slider-height: 2px;
+  --timeline-accent: var(--primaryColor);
+  --timeline-muted: #918a9f;
 
   &:hover,
-  &:active {
-    --slider-height: 6px;
+  &[data-dragging="true"] {
+    --slider-height: 3px;
   }
 
   & .bar {
     width: 100%;
     height: var(--slider-height);
-    transition: height 80ms linear;
-    background-color: #d8d8d8;
+    background-color: rgba(170, 165, 190, 0.22);
+    border-radius: 999px;
+    transition: height 120ms ease;
   }
 
   & .active-bar {
@@ -29,8 +33,73 @@
     width: 100%;
     left: -100%;
     height: var(--slider-height);
-    background-color: var(--primaryColor);
+    color: var(--timeline-accent);
+    background-color: currentColor;
+    border-radius: 999px;
     transform: translateX(0);
-    transition: height linear 80ms;
+    transition: height 120ms ease, color 160ms ease;
+
+    // Center both indicators on the current progress endpoint.
+    &::before,
+    &::after {
+      content: "";
+      position: absolute;
+      right: 0;
+      top: 50%;
+      width: 6px;
+      height: 6px;
+      transform: translate(50%, -50%);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 120ms ease, transform 120ms ease;
+    }
+
+    // Mask the timeline under the two pause strokes.
+    &::before {
+      background-color: var(--backgroundColor);
+      box-shadow: inset 2px 0 0 currentColor, inset -2px 0 0 currentColor;
+    }
+
+    &::after {
+      border-radius: 50%;
+      background-color: currentColor;
+      transform: translate(50%, -50%) scale(0.75);
+    }
+  }
+
+  &[data-playback-state="paused"],
+  &[data-playback-state="buffering"] {
+    .active-bar {
+      color: var(--timeline-muted);
+    }
+  }
+
+  &[data-playback-state="idle"] .active-bar {
+    visibility: hidden;
+  }
+
+  &[data-playback-state="paused"] .active-bar::before {
+    opacity: 1;
+  }
+
+  &:hover,
+  &[data-dragging="true"] {
+    .active-bar::after {
+      opacity: 1;
+      transform: translate(50%, -50%);
+    }
+
+    .active-bar::before {
+      opacity: 0;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .bar,
+    .active-bar,
+    .active-bar::before,
+    .active-bar::after {
+      transition: none;
+    }
   }
 }
