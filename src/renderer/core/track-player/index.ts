@@ -21,7 +21,8 @@ import { createIndexMap, IIndexMap } from "@/common/index-map";
 import _trackPlayerStore from "./store";
 import EventEmitter from "eventemitter3";
 import { IAudioController } from "@/types/audio-controller";
-import AudioController from "@renderer/core/track-player/controller/audio-controller";
+import CollectionAudioController from "./controller/collection-audio-controller";
+import { resolveBilibiliCollection, ResolvedSource } from "./collection";
 import logger from "@shared/logger/renderer";
 import voidCallback from "@/common/void-callback";
 import { delay } from "@/common/time-util";
@@ -136,7 +137,7 @@ class TrackPlayer {
     constructor() {
         this.indexMap = createIndexMap();
         this.ee = new EventEmitter();
-        this.audioController = new AudioController();
+        this.audioController = new CollectionAudioController((item, quality) => this.fetchSingleMediaSource(item, quality));
     }
 
     on<T extends keyof InternalPlayerEvents>(event: T, callback: InternalPlayerEvents[T]) {
@@ -168,7 +169,7 @@ class TrackPlayer {
 
 
     private createAudioController() {
-        const audioController = new AudioController();
+        const audioController = new CollectionAudioController((item, quality) => this.fetchSingleMediaSource(item, quality));
         // 播放结束
         audioController.onEnded = () => {
             this.resetProgress();
@@ -666,7 +667,16 @@ class TrackPlayer {
     }
 
 
-    private async fetchMediaSource(musicItem: IMusic.IMusicItem, quality?: IMusic.IQualityKey) {
+    private async fetchMediaSource(musicItem: IMusic.IMusicItem, quality?: IMusic.IQualityKey): Promise<ResolvedSource> {
+        // Downloaded tracks are already a single local source.
+        const downloaded = getInternalData<IMusic.IMusicItemInternalData>(musicItem, "downloadData");
+        if (downloaded && await fsUtil.isFile(downloaded.path)) {
+            return this.fetchSingleMediaSource(musicItem, quality);
+        }
+        return resolveBilibiliCollection(musicItem, quality, (item, quality) => this.fetchSingleMediaSource(item, quality));
+    }
+
+    private async fetchSingleMediaSource(musicItem: IMusic.IMusicItem, quality?: IMusic.IQualityKey): Promise<ResolvedSource> {
         const defaultQuality = AppConfig.getConfig("playMusic.defaultQuality");
         const whenQualityMissing = AppConfig.getConfig("playMusic.whenQualityMissing");
 

@@ -9,7 +9,7 @@ import { isSameMedia } from "@/common/media-util";
 import { PlayerState } from "@/common/constant";
 import ServiceManager from "@shared/service-manager/renderer";
 import ControllerBase from "@renderer/core/track-player/controller/controller-base";
-import { ErrorReason } from "@renderer/core/track-player/enum";
+import { CurrentTime, ErrorReason } from "@renderer/core/track-player/enum";
 import Dexie from "dexie";
 import voidCallback from "@/common/void-callback";
 import { IAudioController } from "@/types/audio-controller";
@@ -17,7 +17,7 @@ import Promise = Dexie.Promise;
 
 
 class AudioController extends ControllerBase implements IAudioController {
-    private audio: HTMLAudioElement;
+    protected audio: HTMLAudioElement;
     private hls: Hls;
 
     private _playerState: PlayerState = PlayerState.None;
@@ -62,10 +62,7 @@ class AudioController extends ControllerBase implements IAudioController {
         };
 
         this.audio.ontimeupdate = () => {
-            this.onProgressUpdate?.({
-                currentTime: this.audio.currentTime,
-                duration: this.audio.duration, // 缓冲中是Infinity
-            });
+            this.onProgressUpdate?.(this.getProgress());
         };
 
         // this.audio.onseeking = () => {
@@ -92,6 +89,10 @@ class AudioController extends ControllerBase implements IAudioController {
 
         // @ts-ignore  isDev
         window.ad = this.audio;
+    }
+
+    protected getProgress(): CurrentTime {
+        return { currentTime: this.audio.currentTime, duration: this.audio.duration };
     }
 
     private initHls(config?: Partial<HlsConfig>) {
