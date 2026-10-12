@@ -1,3 +1,5 @@
+import { getLyricDisplayText } from "./lyric-display";
+
 const timeReg = /\[[\d:.]+\]/g;
 const metaReg = /\[(.+):(.+)\]/g;
 
@@ -6,6 +8,7 @@ type LyricMeta = Record<string, any>;
 interface IOptions {
     musicItem?: IMusic.IMusicItem;
     translation?: string;
+    language?: string;
 }
 
 export interface IParsedLrcItem {
@@ -24,6 +27,7 @@ export default class LyricParser {
 
     private meta: LyricMeta;
     private lrcItems: Array<IParsedLrcItem>;
+    private originalLrcItems: Array<IParsedLrcItem>;
 
     private lastSearchIndex = 0;
 
@@ -72,6 +76,18 @@ export default class LyricParser {
                 ++p1;
             }
         }
+        this.originalLrcItems = this.lrcItems;
+        this.setLanguage(options?.language);
+    }
+
+    setLanguage(language?: string): void {
+        this.lrcItems = this.originalLrcItems.map(item => ({
+            ...item,
+            lrc: getLyricDisplayText(item.lrc, language),
+            translation: item.translation === undefined
+                ? undefined
+                : getLyricDisplayText(item.translation, language),
+        }));
     }
 
     getPosition(position: number): IParsedLrcItem | null {

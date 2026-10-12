@@ -226,6 +226,17 @@ class TrackPlayer {
     }
 
     public async setup() {
+        AppConfig.onConfigUpdate((patch, config) => {
+            const parser = this.lyric?.parser;
+            if (!("normal.language" in patch) || !parser) return;
+            parser.setLanguage(config["normal.language"]);
+            this.setCurrentLyric({
+                parser,
+                currentLrc: parser.getPosition(this.progress.currentTime || 0),
+            });
+            // The parser is retained; notify the desktop window of the new full text.
+            this.ee.emit(PlayerEvents.LyricChanged, parser);
+        });
         // 1. Config
         const [repeatMode, currentMusic, currentProgress, volume, speed, defaultQuality] = [
             getUserPreference("repeatMode"),
@@ -654,6 +665,7 @@ class TrackPlayer {
             const parser = new LyricParser(lyricSource.rawLrc, {
                 musicItem: currentMusic,
                 translation: lyricSource.translation,
+                language: AppConfig.getConfig("normal.language"),
             });
 
             this.setCurrentLyric({
