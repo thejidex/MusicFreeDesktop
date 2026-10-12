@@ -1,169 +1,104 @@
-# MusicFree 桌面版
-![GitHub Repo stars](https://img.shields.io/github/stars/maotoumao/MusicFreeDesktop) 
-![GitHub forks](https://img.shields.io/github/forks/maotoumao/MusicFreeDesktop)
-![star](https://gitcode.com/maotoumao/MusicFreeDesktop/star/badge.svg)
+# MusicFree Desktop · thejidex 个人改进版
 
-![GitHub License](https://img.shields.io/github/license/maotoumao/MusicFreeDesktop)
-![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/maotoumao/MusicFreeDesktop/total)
-![GitHub Issues or Pull Requests](https://img.shields.io/github/issues/maotoumao/MusicFreeDesktop)
-![GitHub package.json version](https://img.shields.io/github/package-json/v/maotoumao/MusicFreeDesktop)
+[![GitHub Release](https://img.shields.io/github/v/release/thejidex/MusicFreeDesktop)](https://github.com/thejidex/MusicFreeDesktop/releases)
+[![GitHub Downloads](https://img.shields.io/github/downloads/thejidex/MusicFreeDesktop/total)](https://github.com/thejidex/MusicFreeDesktop/releases)
+[![License](https://img.shields.io/badge/license-AGPL--3.0-blue)](./LICENSE)
 
-<a href="https://trendshift.io/repositories/3961" target="_blank"><img src="https://trendshift.io/api/badge/repositories/3961" alt="maotoumao%2FMusicFreeDesktop | Trendshift" style="width: 250px; height: 55px;" width="250" height="55"/></a>
----
+基于 [猫头猫（maotoumao）](https://github.com/maotoumao) 开发的 [MusicFreeDesktop](https://github.com/maotoumao/MusicFreeDesktop) 的个人改进版本，由 [thejidex](https://github.com/thejidex) 整理维护。感谢原作者及项目贡献者提供的音乐播放器。
 
-## 项目使用约定：
-本项目基于 AGPL 3.0 协议开源，使用此项目时请遵守开源协议。  
-除此外，希望你在使用代码时已经了解以下额外说明：
+本分支基于上游 **master / 0.0.8**，主要改善播放控制、B 站合集播放、网络请求和歌词体验。这是个人 Fork，**并非原作者的官方发布**；原项目及其后续开发进度请查看上游仓库。
 
-1. 打包、二次分发 **请保留代码出处**：https://github.com/maotoumao/MusicFree
-2. 请不要用于商业用途，合法合规使用代码；
-3. 如果开源协议变更，将在此 Github 仓库更新，不另行通知。
----
+**[下载改进版](https://github.com/thejidex/MusicFreeDesktop/releases) · [查看原仓库](https://github.com/maotoumao/MusicFreeDesktop) · [反馈本版本问题](https://github.com/thejidex/MusicFreeDesktop/issues) · [贡献方向讨论](https://github.com/maotoumao/MusicFreeDesktop/issues/446)**
 
-## 简介
+## 六项改进
 
-一个插件化、定制化、无广告的免费音乐播放器。
-> 当前版本支持 Windows 和 macOS 和 Linux
+| 改进 | 本版本的行为 |
+| --- | --- |
+| 进度条 | 调整细轨道、悬停和拖动状态，改善暂停标记、点击定位与拖动定位。 |
+| 默认本地快捷键 | 空格播放/暂停，左方向键切上一首，右方向键切下一首；保留已有自定义配置，录制快捷键时避免误触发播放。 |
+| B 站多分集音乐合集 | 在插件提供完整分集信息时连续播放后续分集，显示合集累计时长，支持跨分集定位。 |
+| 搜索与网络请求 | 改善核心插件请求层的 HTTP/HTTPS 系统代理处理，保留手动代理优先级，缓解连接或代理配置导致的搜索失败。 |
+| 歌词与桌面歌词 | 歌词缺失时提供可关闭的匹配功能，改善空歌词与切歌时的显示；桌面歌词工具栏增加一键左右居中，保持上下位置、窗口大小和字体大小，并保存位置。 |
+| 简体歌词显示 | 简体中文界面下，主歌词与桌面歌词共用繁转简显示；保留原始歌词和时间戳，切换界面语言可以恢复原文。 |
 
-<img src="./src/assets/imgs/wechat_channel1.png" height="144px" title="微信公众号" style="display:inherit;"/>
+这些改动已在 Windows 本地进行验证；尚未适配上游重构后的 dev。向上游贡献的范围和实现方式将按维护者的反馈另行整理。
 
+## 下载与运行
 
-### 下载地址
+打开本仓库的 [Releases](https://github.com/thejidex/MusicFreeDesktop/releases)，在相应版本的 **Assets** 中下载：
 
-[飞书云文档](https://r0rvr854dd1.feishu.cn/drive/folder/IrVEfD67KlWZGkdqwjecLHFNnBb?from=from_copylink)
+- `MusicFree-<发布标签>-win-x64.exe`：推荐。双击后自动解压并启动，无需另外安装 MusicFree。
+- `MusicFree-<发布标签>-win-x64.zip`：手动解压整个压缩包，再运行其中的 `MusicFree.exe`。
 
-## 特性
+`Source code (zip)` 和 `Source code (tar.gz)` 是源码，需要构建后使用，不是可直接运行的程序。实际可下载的版本和附件以 Releases 页面为准。
 
-- 插件化：本软件仅仅是一个播放器，本身**并不集成**任何平台的任何音源，所有的搜索、播放、歌单导入等功能全部基于**插件**。这也就意味着，**只要可以在互联网上搜索到的音源，只要有对应的插件，你都可以使用本软件进行搜索、播放等功能。** 关于插件的详细说明请参考 [安卓版 Readme 的插件部分](https://github.com/maotoumao/MusicFree#%E6%8F%92%E4%BB%B6)。
+当前发布准备面向 **Windows x64**，在 Windows 11 上验证。原项目支持其他平台，但本 Fork 尚未提供经过验证的 macOS、Linux 或 Windows ARM64 程序包。
 
-- 插件支持的功能：搜索（音乐、专辑、作者、歌单）、播放、查看专辑、查看作者详细信息、导入单曲、导入歌单、获取歌词等。
+### 自动解压 EXE
 
-- 定制化：本软件可以通过主题包定义软件外观及背景，详见下方主题包一节。
+1. 将下载的 EXE 放在有足够空间的可写文件夹，例如 D 盘的普通文件夹。
+2. 首次双击会在旁边生成 `MusicFree-<发布标签>` 程序文件夹，然后启动。
+3. 以后可双击原 EXE，或进入生成的文件夹运行 `MusicFree.exe`。
+4. 在程序中自行安装音源插件，再进行搜索和播放。
 
-- 无广告：基于 AGPL3.0 协议开源，将会保持免费。
+应用配置、歌单、搜索记录、插件、主题、缓存和日志保存在生成的程序文件夹内的 `portable` 目录。便携包首次启动的歌曲下载目录为 `portable/downloads`，也可在设置中改到其他位置。需要移动整个程序时，请一起移动完整程序文件夹。
 
-- 隐私：软件所有数据存储在本地，本软件不会上传你的个人信息。
+发布包从当前源码重新构建，**不包含维护者的个人歌单、搜索历史、主题包、插件、登录信息和配置**。再次分享时请发送下载到的原始 EXE 或 ZIP；已经使用过的程序文件夹中会有你自己的数据。
 
-## 插件
+不同发布标签会生成不同程序文件夹，不会自动覆盖旧版本或迁移其数据。便携版首次启动关闭官方更新检查；本 Fork 的更新请从本仓库 Releases 获取。
 
-插件协议和安卓版完全相同。
+## 使用说明与限制
 
-[示例插件仓库](https://github.com/maotoumao/MusicFreePlugins)，你可以根据[插件开发文档](https://musicfree.catcat.work/plugin/introduction.html) 开发适配于任意音源的插件。
+- MusicFree 是插件化播放器，本发布包不预装第三方音源插件。插件安装和开发请参考 [原项目文档](https://musicfree.catcat.work/) 与 [示例插件仓库](https://github.com/maotoumao/MusicFreePlugins)。
+- 系统代理优化针对应用的连接和代理处理，不保证所有第三方插件接口都正常。快手插件在当前验证中仍返回空结果。
+- B 站合集连续播放需要插件返回完整且有效的分集信息；明确指定单个分集的歌曲仍按单分集播放。
+- 可靠歌词无法匹配时仍可能没有歌词。自动匹配缺失歌词默认启用，可在歌词设置中关闭。
+- **网络行为**：插件搜索、播放和获取歌词需要访问相应服务；自动匹配缺失歌词时，会将歌曲标题、歌手等匹配信息发送给网易云音乐或 LRCLIB。匹配结果缓存到本地。
+- **桌面歌词左右居中**：启用桌面歌词并解锁后，在悬停工具栏点击“左右居中”；以窗口当前所在显示器的工作区为准，只执行一次位置调整。
+- 快捷键属于应用内的本地快捷键；已有配置不会被强制覆盖，可在快捷键设置中查看和调整。
 
-## 主题包
+## 从源码启动
 
-主题包是一个文件夹，文件夹内必须包含两个文件：
-
-```bash
-index.css
-config.json
-```
-
-### index.css
-
-index.css 中可以覆盖界面中的任何样式。你可以通过定义 css 变量来完成大部分颜色的替换，也可以查看源代码，根据类名等覆盖样式。
-
-支持的 css 变量如下：
-
-``` css
-:root {
-  --primaryColor: #f17d34; // 主色调
-  --backgroundColor: #fdfdfd; // 背景色
-  --dividerColor: rgba(0, 0, 0, 0.1); // 分割线颜色
-  --listHoverColor: rgba(0, 0, 0, 0.05); // 列表悬浮颜色
-  --listActiveColor: rgba(0, 0, 0, 0.1); // 列表选中颜色
-  --textColor: #333333; // 主文本颜色
-  --maskColor: rgba(51, 51, 51, 0.2); // 遮罩层颜色
-  --shadowColor: rgba(0, 0, 0, 0.2); // 对话框等阴影颜色
-  /** --shadow:  // shadow属性 */
-  --placeholderColor: #f4f4f4; // 输入区背景颜色
-  --successColor: #08A34C; // 成功颜色
-  --dangerColor: #FC5F5F; // 危险颜色
-  --infoColor: #0A95C8; // 通知颜色
-  --headerTextColor: white; // 顶部文本颜色
-}
-```
-
-具体的例子可以参考 [暗黑模式](https://github.com/maotoumao/MusicFreeThemePacks/blob/master/darkmode/index.css)
-
-除了通过 css 定义常规样式外，也可以通过在 config.json 中定义 iframes 字段，用来把任意的 html 文件作为软件背景，这样可以实现一些单纯用 css 无法实现的效果。
-
-### config.json
-
-config.json 是一个配置文件。
-
-```json
-{
-    "name": "主题包的名称",
-    "preview": "#000000", // 预览图，支持颜色或图片；
-    "description": "描述文本",
-    "iframes": {
-        "app": "http://musicfree.catcat.work", // 整个软件的背景
-        "header": "", // 头部区域的背景
-        "body": "", // 侧边栏+主页面区域的背景
-        "side-bar": "", // 侧边栏区域的背景
-        "page": "", // 主页面区域的背景
-        "music-bar": "", // 底部音乐栏的背景
-
-    }
-}
-```
-
-如果需要指向本地的图片，可以通过 ```@/``` 表示主题包的路径；preview、iframes、以及 iframes 指向的 html 文件都会把 ```@/``` 替换为 ```主题包路径```。详情可参考 [樱花主题](https://github.com/maotoumao/MusicFreeThemePacks/tree/master/sakura)
-
-### 主题包示例
-
-示例仓库：https://github.com/maotoumao/MusicFreeThemePacks
-
-几个主题包效果截图：
-
-#### 暗黑模式
-[源代码](https://github.com/maotoumao/MusicFreeThemePacks/tree/master/darkmode)
-
-![暗黑模式](./.imgs/darkmode.png)
-
-#### 背景图片
-[源代码](https://github.com/maotoumao/MusicFreeThemePacks/tree/master/night-star)
-
-![背景图片](./.imgs/night-star.png)
-
-#### fliqlo
-[源代码](https://github.com/maotoumao/MusicFreeThemePacks/tree/master/fliqlo)
-
-![fliqlo](./.imgs/fliqlo.gif)
-
-#### 樱花
-[源代码](https://github.com/maotoumao/MusicFreeThemePacks/tree/master/sakura)
-
-![樱花](./.imgs/sakura.gif)
-
-#### 雨季
-[源代码](https://github.com/maotoumao/MusicFreeThemePacks/tree/master/rainy-season)
-
-![雨季](./.imgs/rainy-season.gif)
-
-## 启动项目
-
-下载仓库代码之后，在根目录下执行：
+安装 Node.js 和 npm，在仓库根目录执行：
 
 ```bash
-npm install
+npm ci
 npm start
 ```
 
-## 支持这个项目
+## 构建 Windows 便携包
 
-如果你喜欢这个项目，或者希望我可以持续维护下去，你可以通过以下任何一种方式支持我;)
+在 Windows x64 环境下执行：
 
-1. Star 这个项目，分享给你身边的人；
-2. 关注公众号【一只猫头猫】获取最新信息；
+```bash
+node scripts/build-portable.cjs --tag v0.0.8-thejidex.1
+```
 
-<img src="./src/assets/imgs/wechat_channel.jpg" height="160px" title="微信公众号" style="display:inherit;"/>
+脚本调用 Electron Forge 构建当前源码，再生成自动解压 EXE、ZIP 和 SHA-256 校验文件。默认输出位于 `out/releases/<发布标签>`；可通过 `--output` 指定其他目录。
 
-## 截图
+```bash
+node scripts/build-portable.cjs --tag v0.0.8-thejidex.1 --output D:\CodexTemp\MusicFree-release
+```
 
-![screenshot](./.imgs/screenshot.png)
+自动解压启动器的源码位于 [scripts/portable/Launcher.cs](./scripts/portable/Launcher.cs)，便携数据路径初始化位于 [scripts/portable/portable-init.cjs](./scripts/portable/portable-init.cjs)。构建需要 Windows 的 .NET Framework C# 编译器；原生依赖如果需要重新编译，请按构建报错安装相应工具。
 
-![screenshot](./.imgs/screenshot1.png)
+发布时请将标签指向包含对应代码和打包脚本的提交，以便下载者找到对应源码。个人数据目录和构建输出不应提交到 Git。
 
-![screenshot](./.imgs/screenshot2.png)
+## 主题与截图
+
+主题包格式沿用原项目，可参考 [上游 README](https://github.com/maotoumao/MusicFreeDesktop#主题包) 和 [主题包示例](https://github.com/maotoumao/MusicFreeThemePacks)。
+
+下面是原项目的界面示例，具体界面以本版本实际运行结果为准：
+
+![MusicFree 原项目界面示例](./.imgs/screenshot.png)
+
+## 原作者、出处与许可证
+
+- 原作者：[猫头猫 / maotoumao](https://github.com/maotoumao)。
+- 原桌面端仓库：[maotoumao/MusicFreeDesktop](https://github.com/maotoumao/MusicFreeDesktop)。
+- MusicFree 项目：[maotoumao/MusicFree](https://github.com/maotoumao/MusicFree)。
+- 本 Fork：[thejidex/MusicFreeDesktop](https://github.com/thejidex/MusicFreeDesktop)。
+
+本项目保留原仓库的 **GNU Affero General Public License v3**，完整条款见 [LICENSE](./LICENSE)。请遵守许可证及原项目使用说明，并保留原作者与代码出处。发布包同时保留 MusicFree 和第三方组件的许可证文件。
+
+如果这个项目对你有帮助，欢迎先给 [原项目](https://github.com/maotoumao/MusicFreeDesktop) 点 Star，支持原作者与贡献者。
