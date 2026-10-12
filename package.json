@@ -95,6 +95,7 @@
     "he": "^1.2.0",
     "hls.js": "^1.5.8",
     "hotkeys-js": "^3.13.7",
+    "http-proxy-agent": "7.0.2",
     "https-proxy-agent": "^7.0.4",
     "i18next": "^22.5.1",
     "iconv-lite": "^0.6.3",

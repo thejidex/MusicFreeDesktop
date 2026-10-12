@@ -3,7 +3,7 @@ import type { Plugin } from "./plugin";
 import { localFilePathSymbol } from "@/common/constant";
 import fs from "fs/promises";
 import { delay } from "@/common/time-util";
-import axios from "axios";
+import axios from "./network/axios";
 import { addFileScheme, safeStat } from "@/common/file-util";
 import path from "path";
 

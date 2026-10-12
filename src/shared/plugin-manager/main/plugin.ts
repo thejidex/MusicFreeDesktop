@@ -1,6 +1,6 @@
 import CryptoJs from "crypto-js";
 import dayjs from "dayjs";
-import axios from "axios";
+import axios from "./network/axios";
 import bigInt from "big-integer";
 import qs from "qs";
 import * as cheerio from "cheerio";
@@ -12,7 +12,6 @@ import * as webdav from "webdav";
 import AppConfig from "@shared/app-config/main";
 import pluginStorage from "@shared/plugin-manager/main/polyfill/storage";
 
-axios.defaults.timeout = 15000;
 
 const sha256 = CryptoJs.SHA256;
 
