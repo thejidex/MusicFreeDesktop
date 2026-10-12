@@ -16,6 +16,7 @@ const _defaultAppConfig: IAppConfig =  {
     "download.defaultQuality": "standard",
     "download.whenQualityMissing": "lower",
     "lyric.enableDesktopLyric": false,
+    "lyric.autoMatchMissing": true,
     "lyric.alwaysOnTop": false,
     "lyric.lockLyric": false,
     "lyric.fontData": defaultFont,

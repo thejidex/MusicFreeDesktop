@@ -30,6 +30,7 @@ class WindowManager implements IWindowManager {
     private static miniModeWindow: BrowserWindow | null = null;
 
     private ee: EventEmitter = new EventEmitter();
+    private centeringLyricWindow = false;
 
     getMainWindow(): BrowserWindow {
         return WindowManager.mainWindow;
@@ -323,6 +324,7 @@ class WindowManager implements IWindowManager {
 
         lyricWindow.on("resize", () => {
             const [wWidth, wHeight] = lyricWindow.getSize();
+            if (this.centeringLyricWindow || (wWidth === width && wHeight === height)) return;
             const fontSize = Math.max(Math.min(Math.floor((height - 60) / 2), 80), 16);
             AppConfig.setConfig({
                 "lyric.fontSize": fontSize,
@@ -381,6 +383,39 @@ class WindowManager implements IWindowManager {
             "lyric.enableDesktopLyric": true,
         });
 
+    }
+
+    public centerLyricWindowHorizontally() {
+        const lyricWindow = WindowManager.lrcWindow;
+        if (!lyricWindow || lyricWindow.isDestroyed()) return;
+        const bounds = lyricWindow.getBounds();
+        const area = screen.getDisplayMatching(bounds).workArea;
+        const x = Math.round(area.x + (area.width - bounds.width) / 2);
+        if (bounds.x === x) {
+            AppConfig.setConfig({ "private.lyricWindowPosition": { x, y: bounds.y } });
+            return;
+        }
+        this.centeringLyricWindow = true;
+        try {
+            lyricWindow.setBounds({ ...bounds, x });
+            // Frameless Windows windows can round DIP bounds at fractional DPI.
+            const placed = lyricWindow.getBounds();
+            if (placed.x !== x || placed.y !== bounds.y
+                || placed.width !== bounds.width || placed.height !== bounds.height) {
+                lyricWindow.setBounds({
+                    x: x + x - placed.x,
+                    y: bounds.y + bounds.y - placed.y,
+                    width: bounds.width + bounds.width - placed.width,
+                    height: bounds.height + bounds.height - placed.height,
+                });
+            }
+            const [savedX, savedY] = lyricWindow.getPosition();
+            AppConfig.setConfig({
+                "private.lyricWindowPosition": { x: savedX, y: savedY },
+            });
+        } finally {
+            this.centeringLyricWindow = false;
+        }
     }
 
     public closeLyricWindow() {

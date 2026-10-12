@@ -287,7 +287,9 @@
       "font": "字体",
       "font_size": "字体大小",
       "font_color": "字体颜色",
-      "stroke_color": "描边颜色"
+      "stroke_color": "描边颜色",
+      "auto_match_missing": "自动匹配缺失歌词",
+      "center_horizontally": "左右居中"
     },
     "plugin": {
       "auto_update_plugin": "打开软件时自动更新插件",

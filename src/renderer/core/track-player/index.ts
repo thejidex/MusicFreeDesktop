@@ -23,6 +23,7 @@ import EventEmitter from "eventemitter3";
 import { IAudioController } from "@/types/audio-controller";
 import CollectionAudioController from "./controller/collection-audio-controller";
 import { resolveBilibiliCollection, ResolvedSource } from "./collection";
+import { hasLyric } from "@/common/lyric-util";
 import logger from "@shared/logger/renderer";
 import voidCallback from "@/common/void-callback";
 import { delay } from "@/common/time-util";
@@ -625,16 +626,16 @@ class TrackPlayer {
         try {
             // 获取被关联的歌词
             const linkedLyricItem = await getLinkedLyric(currentMusic);
-            let lyricSource: ILyric.ILyricSource;
+            let lyricSource: ILyric.ILyricSource | null = null;
 
             if (linkedLyricItem) {
                 lyricSource = await PluginManager.callPluginDelegateMethod(
                     linkedLyricItem,
                     "getLyric",
                     linkedLyricItem,
-                );
+                ).catch(() => null);
             }
-            if (!lyricSource && this.isCurrentMusic(currentMusic)) {
+            if (!hasLyric(lyricSource) && this.isCurrentMusic(currentMusic)) {
                 lyricSource = await PluginManager.callPluginDelegateMethod(
                     currentMusic,
                     "getLyric",
@@ -646,8 +647,9 @@ class TrackPlayer {
                 return;
             }
 
-            if (!lyricSource?.rawLrc && !lyricSource?.translation) {
+            if (!hasLyric(lyricSource)) {
                 this.setCurrentLyric({});
+                return;
             }
             const parser = new LyricParser(lyricSource.rawLrc, {
                 musicItem: currentMusic,
@@ -660,7 +662,7 @@ class TrackPlayer {
             });
         } catch (e) {
             logger.logError("歌词解析失败", e);
-            this.setCurrentLyric({});
+            if (this.isCurrentMusic(currentMusic)) this.setCurrentLyric({});
         }
 
 

@@ -309,7 +309,9 @@
       "font": "Font",
       "font_size": "Font Size",
       "font_color": "Font Color",
-      "stroke_color": "Stroke Color"
+      "stroke_color": "Stroke Color",
+      "auto_match_missing": "Automatically match missing lyrics",
+      "center_horizontally": "Center horizontally"
     },
     "plugin": {
       "auto_update_plugin": "Automatically update plugins on startup",

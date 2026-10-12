@@ -92,6 +92,10 @@ function setLyricWindow(enabled: boolean) {
     ipcRenderer.send("@shared/utils/set-lyric-window", enabled);
 }
 
+function centerLyricWindowHorizontally() {
+    ipcRenderer.send("@shared/utils/center-lyric-window-horizontally");
+}
+
 function setMinimodeWindow(enabled: boolean) {
     ipcRenderer.send("@shared/utils/set-minimode-window", enabled);
 }
@@ -112,6 +116,7 @@ const appWindow = {
     minMainWindow,
     showMainWindow,
     setLyricWindow,
+    centerLyricWindowHorizontally,
     setMinimodeWindow,
     ignoreMouseEvent,
     toggleMainWindowVisible,

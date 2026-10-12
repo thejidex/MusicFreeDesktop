@@ -4,6 +4,9 @@ import { localFilePathSymbol } from "@/common/constant";
 import fs from "fs/promises";
 import { delay } from "@/common/time-util";
 import axios from "./network/axios";
+import AppConfig from "@shared/app-config/main";
+import { hasLyric } from "@/common/lyric-util";
+import { resolveMissingLyric, searchFallbackLyrics, getFallbackLyricById } from "./lyric-provider";
 import { addFileScheme, safeStat } from "@/common/file-util";
 import path from "path";
 
@@ -18,16 +21,16 @@ export default class PluginMethods implements IPlugin.IPluginInstanceMethods {
         page: number,
         type: T,
     ): Promise<IPlugin.ISearchResult<T>> {
-        if (!this.plugin.instance.search) {
-            return {
-                isEnd: true,
-                data: [],
-            };
+        let result: IPlugin.ISearchResult<T>;
+        try {
+            result = await this.plugin.instance.search?.(query, page, type);
+        } catch (error) {
+            if (type !== "lyric") throw error;
         }
-
-        const result = await this.plugin.instance.search(query, page, type);
-        console.log(result, this.plugin.instance.search, query, page, type);
-        if (Array.isArray(result.data)) {
+        if (type === "lyric" && !result?.data?.length) {
+            result = await searchFallbackLyrics(query, page) as IPlugin.ISearchResult<T>;
+        }
+        if (Array.isArray(result?.data)) {
             result.data.forEach((_) => {
                 resetMediaItem(_, this.plugin.name);
             });
@@ -116,11 +119,13 @@ export default class PluginMethods implements IPlugin.IPluginInstanceMethods {
     async getLyric(
         musicItem: IMusic.IMusicItem,
     ): Promise<ILyric.ILyricSource | null> {
+        const explicit = getFallbackLyricById(musicItem);
+        if (explicit) return explicit;
         let rawLrc = musicItem.rawLrc;
         let lrcUrl = musicItem.lrc;
         let translation: string;
         // 如果存在文本
-        if (rawLrc) {
+        if (hasLyric({ rawLrc })) {
             return {
                 rawLrc,
                 lrc: lrcUrl,
@@ -151,7 +156,7 @@ export default class PluginMethods implements IPlugin.IPluginInstanceMethods {
                         );
                     }
 
-                    if (rawLrc) {
+                    if (hasLyric({ rawLrc, translation })) {
                         return {
                             rawLrc,
                             translation,
@@ -183,8 +188,8 @@ export default class PluginMethods implements IPlugin.IPluginInstanceMethods {
             lrcUrl = lrcSource?.lrc || lrcUrl;
             translation = lrcSource?.translation;
 
-            if (rawLrc || translation) {
-                if (!rawLrc) {
+            if (hasLyric({ rawLrc, translation })) {
+                if (!hasLyric({ rawLrc })) {
                     rawLrc = translation;
                     translation = undefined;
                 }
@@ -202,7 +207,7 @@ export default class PluginMethods implements IPlugin.IPluginInstanceMethods {
         if (lrcUrl) {
             try {
                 rawLrc = (await axios.get(lrcUrl, { timeout: 5000 })).data;
-                return {
+                if (hasLyric({ rawLrc, translation })) return {
                     rawLrc,
                     lrc: lrcUrl,
                     translation,
@@ -219,8 +224,10 @@ export default class PluginMethods implements IPlugin.IPluginInstanceMethods {
         //         return res;
         //     }
         // }
-        // devLog('warn', '无歌词');
-
+        // Missing lyrics may be matched conservatively; explicit settings still win.
+        if (AppConfig.getConfig("lyric.autoMatchMissing") !== false) {
+            return resolveMissingLyric(musicItem);
+        }
         return null;
     }
 

@@ -10,8 +10,10 @@ import { appWindowUtil } from "@shared/utils/renderer";
 import AppConfig from "@shared/app-config/renderer";
 import messageBus, { useAppStatePartial } from "@shared/message-bus/renderer/extension";
 import { IAppState } from "@shared/message-bus/type";
+import { useTranslation } from "react-i18next";
 
 export default function LyricWindowPage() {
+    const { t } = useTranslation();
     const currentMusic = useAppStatePartial("musicItem");
     const playerState = useAppStatePartial("playerState");
     const lockLyric = useAppConfig("lyric.lockLyric");
@@ -106,6 +108,15 @@ export default function LyricWindowPage() {
                             >
                                 <SvgAsset iconName="skip-right"></SvgAsset>
                             </div>
+                            <button
+                                type="button"
+                                className="operation-button center-horizontally"
+                                title={t("settings.lyric.center_horizontally")}
+                                aria-label={t("settings.lyric.center_horizontally")}
+                                onClick={() => appWindowUtil.centerLyricWindowHorizontally()}
+                            >
+                                <SvgAsset iconName="align-horizontal-center"></SvgAsset>
+                            </button>
                             <div
                                 className="operation-button"
                                 onClick={() => {

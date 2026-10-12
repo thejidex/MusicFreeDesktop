@@ -87,6 +87,10 @@ class Utils {
             }
         });
 
+        ipcMain.on("@shared/utils/center-lyric-window-horizontally", () => {
+            this.windowManager.centerLyricWindowHorizontally();
+        });
+
         ipcMain.on("@shared/utils/set-minimode-window", (_, enabled) => {
             if (enabled) {
                 this.windowManager.showMiniModeWindow();

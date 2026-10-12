@@ -309,7 +309,9 @@
       "font": "字體",
       "font_size": "字體大小",
       "font_color": "字體顏色",
-      "stroke_color": "描邊顏色"
+      "stroke_color": "描邊顏色",
+      "auto_match_missing": "自動匹配缺失歌詞",
+      "center_horizontally": "左右置中"
     },
     "plugin": {
       "auto_update_plugin": "啟動應用時自動更新插件",

@@ -36,7 +36,8 @@ export default class LyricParser {
     constructor(raw: string, options?: IOptions) {
     // init
         this._musicItem = options?.musicItem;
-        let translation = options?.translation;
+        raw = String(raw ?? "").trim();
+        let translation = options?.translation?.trim();
         if (!raw && translation) {
             raw = translation;
             translation = undefined;
@@ -47,8 +48,8 @@ export default class LyricParser {
         this.lrcItems = lrcItems;
 
         if (translation) {
-            this.hasTranslation = true;
             const transLrcItems = this.parseLyricImpl(translation).lrcItems;
+            this.hasTranslation = transLrcItems.length > 0;
 
             // 2 pointer
             let p1 = 0;
@@ -57,12 +58,12 @@ export default class LyricParser {
             while (p1 < this.lrcItems.length) {
                 const lrcItem = this.lrcItems[p1];
                 while (
-                    transLrcItems[p2].time < lrcItem.time &&
-          p2 < transLrcItems.length - 1
+                    p2 < transLrcItems.length - 1 &&
+                    transLrcItems[p2].time < lrcItem.time
                 ) {
                     ++p2;
                 }
-                if (transLrcItems[p2].time === lrcItem.time) {
+                if (transLrcItems[p2]?.time === lrcItem.time) {
                     lrcItem.translation = transLrcItems[p2].lrc;
                 } else {
                     lrcItem.translation = "";
@@ -180,7 +181,7 @@ export default class LyricParser {
     }
 
     private parseLyricImpl(raw: string) {
-        raw = raw.trim();
+        raw = String(raw ?? "").trim();
         const rawLrcItems: Array<IParsedLrcItem> = [];
         const rawLrcs = raw.split(timeReg) ?? [];
         const rawTimes = raw.match(timeReg) ?? [];

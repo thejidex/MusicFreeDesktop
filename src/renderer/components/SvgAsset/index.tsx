@@ -67,6 +67,7 @@ export type SvgAssetIconNames =
     | "sd"
     | "hq"
     | "sq"
+    | "align-horizontal-center"
     | "x-mark";
 
 interface IProps {

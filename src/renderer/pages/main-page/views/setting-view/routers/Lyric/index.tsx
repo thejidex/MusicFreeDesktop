@@ -24,6 +24,10 @@ export default function Lyric() {
                 ></CheckBoxSettingItem>
             </IfTruthy>
             <CheckBoxSettingItem
+                label={t("settings.lyric.auto_match_missing")}
+                keyPath="lyric.autoMatchMissing"
+            ></CheckBoxSettingItem>
+            <CheckBoxSettingItem
                 label={t("settings.lyric.enable_desktop_lyric")}
                 keyPath="lyric.enableDesktopLyric"
                 onChange={(_evt, checked) => {

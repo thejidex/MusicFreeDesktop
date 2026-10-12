@@ -21,6 +21,7 @@ interface IMod {
         minMainWindow: (skipTaskBar?: boolean) => void;
         showMainWindow: () => void;
         setLyricWindow: (enabled: boolean) => void;
+        centerLyricWindowHorizontally: () => void;
         setMinimodeWindow: (enabled: boolean) => void;
         setLyricWindowLock: (lockState: boolean) => void;
         ignoreMouseEvent: (ignore: boolean) => void;

@@ -57,6 +57,9 @@ export interface IWindowManager {
      */
     closeLyricWindow(): void;
 
+    /** 歌词窗口仅左右居中 */
+    centerLyricWindowHorizontally(): void;
+
 
     /**
      * 显示迷你模式窗口
