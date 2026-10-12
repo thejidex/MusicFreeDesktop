@@ -10,6 +10,8 @@
 
 **[下载改进版](https://github.com/thejidex/MusicFreeDesktop/releases) · [查看原仓库](https://github.com/maotoumao/MusicFreeDesktop) · [反馈本版本问题](https://github.com/thejidex/MusicFreeDesktop/issues) · [贡献方向讨论](https://github.com/maotoumao/MusicFreeDesktop/issues/446)**
 
+修改说明：本版本由 thejidex 修改并整理，六项功能改进于 2026 年 10 月 12 日发布；同日补充第三方版权文件与打包说明。详细记录见 Git 提交历史。
+
 ## 六项改进
 
 | 改进 | 本版本的行为 |
@@ -99,6 +101,6 @@ node scripts/build-portable.cjs --tag v0.0.8-thejidex.1 --output D:\CodexTemp\Mu
 - MusicFree 项目：[maotoumao/MusicFree](https://github.com/maotoumao/MusicFree)。
 - 本 Fork：[thejidex/MusicFreeDesktop](https://github.com/thejidex/MusicFreeDesktop)。
 
-本项目保留原仓库的 **GNU Affero General Public License v3**，完整条款见 [LICENSE](./LICENSE)。请遵守许可证及原项目使用说明，并保留原作者与代码出处。发布包同时保留 MusicFree 和第三方组件的许可证文件。
+本项目保留原仓库的 **GNU Affero General Public License v3**，完整条款见 [LICENSE](./LICENSE)。请遵守许可证及原项目使用说明，并保留原作者与代码出处。发布包保留 MusicFree、Electron、Chromium 的许可证，并将收集到的运行依赖版权文件放在 third-party-licenses 目录；见 [第三方声明](./third-party-licenses/README.md)。
 
 如果这个项目对你有帮助，欢迎先给 [原项目](https://github.com/maotoumao/MusicFreeDesktop) 点 Star，支持原作者与贡献者。

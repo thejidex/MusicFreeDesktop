@@ -138,12 +138,15 @@ async function main() {
   }
   fs.copyFileSync(path.join(repo, 'LICENSE'), path.join(stage, 'LICENSE-MusicFree-AGPL-3.0.txt'));
   fs.copyFileSync(path.join(repo, 'README.md'), path.join(stage, 'README.md'));
+  require('./collect-third-party-licenses.cjs')(repo, stage);
   fs.writeFileSync(path.join(stage, '使用说明.txt'), '\ufeff' + [
     'MusicFree · thejidex 个人改进版 · ' + tag,
     '基于上游 MusicFreeDesktop 0.0.8，非原作者官方发布。',
     '原作者：https://github.com/maotoumao',
     '原仓库：https://github.com/maotoumao/MusicFreeDesktop',
-    '本版本源码：https://github.com/thejidex/MusicFreeDesktop',
+    '本版本源码：https://github.com/thejidex/MusicFreeDesktop/tree/' + tag,
+    '修改者：thejidex；功能改进及版权说明更新日期：2026-10-12。',
+    '第三方版权文件：third-party-licenses/INDEX.md。',
     '',
     'EXE 首次运行在旁边解压为 MusicFree-' + tag + '，然后启动。',
     'ZIP 用户请完整解压后运行 MusicFree.exe。',
