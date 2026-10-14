@@ -1,0 +1,35 @@
+/* Static local assets only. No iframe, scripts, remote fonts or animation. */
+:root {
+ --primaryColor: #eab394 !important;
+ --backgroundColor: rgb(12,22,32) !important;
+ --textColor: #f2f5f8 !important;
+ --textSecondaryColor: #cbd5df !important;
+ --headerTextColor: #f2f5f8 !important;
+ --linkColor: #eab394 !important;
+ --dividerColor: rgba(235,243,255,.15) !important;
+ --listEvenColor: rgba(255,255,255,.035) !important;
+ --listHoverColor: rgba(255,255,255,.12) !important;
+ --listActiveColor: rgba(255,255,255,.19) !important;
+ --maskColor: rgba(0,0,0,.65) !important;
+ --shadowColor: rgba(0,0,0,.25) !important;
+ --placeholderColor: rgba(255,255,255,.12) !important;
+ --backdropColor: rgb(12,22,32) !important;
+}
+.app-container {
+ background: linear-gradient(90deg,rgba(12,22,32,.78),rgba(12,22,32,.48) 48%,rgba(12,22,32,.28)), url('@/background.webp') 35% center / cover no-repeat !important;
+ color: var(--textColor) !important;
+}
+.body-container, .page-container {background: transparent !important;}
+.side-bar-container {background: rgba(12,22,32,.62) !important; border-right: 1px solid var(--dividerColor);}
+.header-container {background: rgba(12,22,32,.78) !important; border-bottom: 1px solid var(--dividerColor);}
+.music-bar-container {background: rgba(12,22,32,.9) !important; border-top: 1px solid var(--dividerColor);}
+.header-container, .side-bar-container, .music-bar-container, .app-container, .body-container, .music-detail-container {
+ backdrop-filter: none !important; -webkit-backdrop-filter: none !important;
+}
+.right-part {--headerTextColor: #f2f5f8 !important;}
+.music-detail-container {background: rgba(12,22,32,.94) !important;}
+a {color: #eab394;}
+input {color: var(--textColor); caret-color: #eab394;}
+input::placeholder {color: #bdc8d5;}
+::selection {background: #eab394; color: #14202d;}
+::-webkit-scrollbar-thumb {background-color: rgba(220,235,250,.32); border-radius: 8px;}

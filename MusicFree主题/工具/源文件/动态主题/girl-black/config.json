@@ -1,0 +1,10 @@
+{
+  "name": "黑衣映像 · 动态",
+  "author": "个人定制",
+  "version": "1.0.0",
+  "preview": "@/preview.jpg",
+  "description": "用户提供视频，1080p/30fps静音循环；深色面板、淡紫点缀。原素材版权归原作者。",
+  "iframe": {
+    "app": "@/background.html"
+  }
+}

@@ -1,0 +1,37 @@
+/* Static local assets only. No iframe, scripts, remote fonts or animation. */
+:root {
+ --primaryColor: #c6b7e9 !important;
+ --backgroundColor: rgb(12,14,20) !important;
+ --textColor: #f2f5f8 !important;
+ --textSecondaryColor: #cbd5df !important;
+ --headerTextColor: #f2f5f8 !important;
+ --linkColor: #c6b7e9 !important;
+ --dividerColor: rgba(235,243,255,.15) !important;
+ --listEvenColor: rgba(255,255,255,.035) !important;
+ --listHoverColor: rgba(255,255,255,.12) !important;
+ --listActiveColor: rgba(255,255,255,.19) !important;
+ --maskColor: rgba(0,0,0,.65) !important;
+ --shadowColor: rgba(0,0,0,.25) !important;
+ --placeholderColor: rgba(255,255,255,.12) !important;
+ --backdropColor: rgb(12,14,20) !important;
+}
+.app-container {
+ background: rgb(12,14,20) !important;
+ color: var(--textColor) !important;
+}
+.body-container, .page-container {background: transparent !important;}
+.side-bar-container {background: rgba(12,14,20,.62) !important; border-right: 1px solid var(--dividerColor);}
+.header-container {background: rgba(12,14,20,.78) !important; border-bottom: 1px solid var(--dividerColor);}
+.music-bar-container {background: rgba(12,14,20,.9) !important; border-top: 1px solid var(--dividerColor);}
+.header-container, .side-bar-container, .music-bar-container, .app-container, .body-container, .music-detail-container {
+ backdrop-filter: none !important; -webkit-backdrop-filter: none !important;
+}
+.right-part {--headerTextColor: #f2f5f8 !important;}
+.music-detail-container {background: rgba(12,14,20,.94) !important;}
+a {color: #c6b7e9;}
+input {color: var(--textColor); caret-color: #c6b7e9;}
+input::placeholder {color: #bdc8d5;}
+::selection {background: #c6b7e9; color: #14202d;}
+::-webkit-scrollbar-thumb {background-color: rgba(220,235,250,.32); border-radius: 8px;}
+
+.app-container > iframe { pointer-events: none !important; }

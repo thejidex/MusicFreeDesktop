@@ -1,0 +1,6 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>暮色栏杆 · 海边女孩</title>
+<style>html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#0a141e}video{display:block;width:100%;height:100%;object-fit:cover;object-position:50% 50%}body:after{content:"";position:fixed;inset:0;background:linear-gradient(90deg,rgba(10,20,30,.38),rgba(10,20,30,.24) 45%,rgba(10,20,30,.14));pointer-events:none}</style>
+</head><body><video autoplay muted loop playsinline preload="auto" poster="@/preview.jpg"><source src="@/background.mp4" type="video/mp4"></video>
+<script>const video=document.querySelector('video');video.muted=true;function resume(){if(!document.hidden)video.play().catch(()=>{});}document.addEventListener('visibilitychange',()=>{if(document.hidden)video.pause();else resume();});video.addEventListener('canplay',resume);resume();</script>
+</body></html>

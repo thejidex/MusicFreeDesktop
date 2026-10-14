@@ -1,0 +1,10 @@
+{
+  "name": "暮色栏杆 · 海边女孩 · 动态",
+  "author": "个人定制",
+  "version": "1.0.0",
+  "preview": "@/preview.jpg",
+  "description": "海边暮色视频背景，1080p / 30fps 静音循环，蓝灰色半透明面板。",
+  "iframe": {
+    "app": "@/background.html"
+  }
+}

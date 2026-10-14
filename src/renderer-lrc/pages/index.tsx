@@ -156,22 +156,32 @@ function LyricContent() {
     const fontColorConfig = useAppConfig("lyric.fontColor");
     const fontStrokeConfig = useAppConfig("lyric.strokeColor");
 
+    const [windowHeight, setWindowHeight] = useState(window.innerHeight);
+    useEffect(() => {
+        const onResize = () => setWindowHeight(window.innerHeight);
+        window.addEventListener("resize", onResize);
+        return () => window.removeEventListener("resize", onResize);
+    }, []);
+    const lineCount = (currentLyric?.lrc || "").split(/\r\n?|\n/).length;
+    const displayFontSize = Math.min(fontSizeConfig ?? 48,
+        Math.max(8, (windowHeight - 60) / lineCount / 1.2));
+
     const [enableTransition, setEnableTransition] = useState(false);
 
     const textWidth = useMemo(() => {
         if (currentLyric?.lrc) {
             return getTextWidth(currentLyric?.lrc, {
-                fontSize: fontSizeConfig ?? 48,
+                fontSize: displayFontSize,
                 fontFamily: fontDataConfig?.family || undefined,
             });
         } else if (currentMusic) {
             return getTextWidth(`${currentMusic.title} - ${currentMusic.artist}`, {
-                fontSize: fontSizeConfig ?? 48,
+                fontSize: displayFontSize,
                 fontFamily: fontDataConfig?.family || undefined,
             });
         }
         return 0;
-    }, [currentLyric, fontDataConfig, fontSizeConfig, currentMusic]);
+    }, [currentLyric, fontDataConfig, displayFontSize, currentMusic]);
 
     const [left, setLeft] = useState(null);
 
@@ -186,7 +196,7 @@ function LyricContent() {
 
     useLayoutEffect(() => {
         const callback = (_: any, patch: IAppState) => {
-            if (!patch.progress) {
+            if (patch.progress === undefined || !Number.isFinite(patch.progress)) {
                 return;
             }
             if (textWidth > window.innerWidth) {
@@ -224,7 +234,7 @@ function LyricContent() {
             style={{
                 color: fontColorConfig,
                 WebkitTextStrokeColor: fontStrokeConfig,
-                fontSize: fontSizeConfig,
+                fontSize: displayFontSize,
                 fontFamily: fontDataConfig?.family || undefined,
                 left: left,
                 transition: enableTransition ? "left 900ms linear" : "none",

@@ -1,7 +1,8 @@
+import { formatLyricDisplayLines, wordTimedLyricToLrc } from "@/common/lyric-timing";
 import { getLyricDisplayText } from "./lyric-display";
 
-const timeReg = /\[[\d:.]+\]/g;
-const metaReg = /\[(.+):(.+)\]/g;
+const timeReg = /\[(?:\d{1,3}:)?\d{1,3}:\d{2}(?:\.\d{1,3})?\]/g;
+const metaReg = /\[([a-z]+):([^\]]*)\]/gi;
 
 type LyricMeta = Record<string, any>;
 
@@ -29,7 +30,7 @@ export default class LyricParser {
     private lrcItems: Array<IParsedLrcItem>;
     private originalLrcItems: Array<IParsedLrcItem>;
 
-    private lastSearchIndex = 0;
+    private hasTimeline = false;
 
     public hasTranslation = false;
 
@@ -47,12 +48,19 @@ export default class LyricParser {
             translation = undefined;
         }
 
-        const { lrcItems, meta } = this.parseLyricImpl(raw);
+        const { lrcItems, meta, hasTimeline } = this.parseLyricImpl(raw);
+        this.hasTimeline = hasTimeline;
         this.meta = meta;
         this.lrcItems = lrcItems;
 
         if (translation) {
-            const transLrcItems = this.parseLyricImpl(translation).lrcItems;
+            const translated = this.parseLyricImpl(translation);
+            const transLrcItems = translated.lrcItems;
+            if (translated.meta.offset === undefined && this.meta.offset !== undefined) {
+                transLrcItems.forEach(item => {
+                    item.time -= this.meta.offset;
+                });
+            }
             this.hasTranslation = transLrcItems.length > 0;
 
             // 2 pointer
@@ -83,48 +91,25 @@ export default class LyricParser {
     setLanguage(language?: string): void {
         this.lrcItems = this.originalLrcItems.map(item => ({
             ...item,
-            lrc: getLyricDisplayText(item.lrc, language),
+            lrc: getLyricDisplayText(formatLyricDisplayLines(item.lrc), language),
             translation: item.translation === undefined
                 ? undefined
-                : getLyricDisplayText(item.translation, language),
+                : getLyricDisplayText(formatLyricDisplayLines(item.translation), language),
         }));
     }
 
     getPosition(position: number): IParsedLrcItem | null {
-        position = position - (this.meta?.offset ?? 0);
-        let index;
-        /** 最前面 */
-        if (!this.lrcItems[0] || position < this.lrcItems[0].time) {
-            this.lastSearchIndex = 0;
-            return null;
+        if (!this.hasTimeline || !Number.isFinite(position) || !this.lrcItems.length
+            || position < this.lrcItems[0].time) return null;
+        // Find the last line whose onset has passed, including after backward seeks.
+        let low = 0;
+        let high = this.lrcItems.length;
+        while (low < high) {
+            const mid = (low + high) >>> 1;
+            if (this.lrcItems[mid].time <= position) low = mid + 1;
+            else high = mid;
         }
-        for (
-            index = this.lastSearchIndex;
-            index < this.lrcItems.length - 1;
-            ++index
-        ) {
-            if (
-                position >= this.lrcItems[index].time &&
-        position < this.lrcItems[index + 1].time
-            ) {
-                this.lastSearchIndex = index;
-                return this.lrcItems[index];
-            }
-        }
-
-        for (index = 0; index < this.lastSearchIndex; ++index) {
-            if (
-                position >= this.lrcItems[index].time &&
-        position < this.lrcItems[index + 1].time
-            ) {
-                this.lastSearchIndex = index;
-                return this.lrcItems[index];
-            }
-        }
-
-        index = this.lrcItems.length - 1;
-        this.lastSearchIndex = index;
-        return this.lrcItems[index];
+        return this.lrcItems[low - 1] ?? null;
     }
 
     getLyricItems() {
@@ -168,13 +153,12 @@ export default class LyricParser {
     }
     /** x s => [xx:xx.xx] */
     private timeToLrctime(sec: number) {
-        const min = Math.floor(sec / 60);
-        sec = sec - min * 60;
-        const secInt = Math.floor(sec);
-        const secFloat = sec - secInt;
-        return `[${min.toFixed(0).padStart(2, "0")}:${secInt
-            .toString()
-            .padStart(2, "0")}.${secFloat.toFixed(2).slice(2)}]`;
+        const ticks = Math.round(Math.max(0, sec) * 100);
+        const minutes = Math.floor(ticks / 6000);
+        const seconds = Math.floor(ticks / 100) % 60;
+        const fraction = ticks % 100;
+        return "[" + String(minutes).padStart(2, "0") + ":" +
+            String(seconds).padStart(2, "0") + "." + String(fraction).padStart(2, "0") + "]";
     }
 
     private parseMetaImpl(metaStr: string) {
@@ -185,10 +169,11 @@ export default class LyricParser {
         const meta: any = {};
         let k, v;
         for (const m of metaArr) {
-            k = m.substring(1, m.indexOf(":"));
+            k = m.substring(1, m.indexOf(":")).toLowerCase();
             v = m.substring(k.length + 2, m.length - 1);
             if (k === "offset") {
-                meta[k] = +v / 1000;
+                const offset = Number(v) / 1000;
+                if (Number.isFinite(offset)) meta[k] = offset;
             } else {
                 meta[k] = v;
             }
@@ -197,53 +182,49 @@ export default class LyricParser {
     }
 
     private parseLyricImpl(raw: string) {
-        raw = String(raw ?? "").trim();
-        const rawLrcItems: Array<IParsedLrcItem> = [];
-        const rawLrcs = raw.split(timeReg) ?? [];
-        const rawTimes = raw.match(timeReg) ?? [];
-        const len = rawTimes.length;
-
-        const meta = this.parseMetaImpl(rawLrcs[0].trim());
-        rawLrcs.shift();
-
-        let counter = 0;
-        let j, lrc;
-        for (let i = 0; i < len; ++i) {
-            counter = 0;
-            while (rawLrcs[0] === "") {
-                ++counter;
-                rawLrcs.shift();
+        // Some plugins return escaped newlines rather than physical line breaks.
+        raw = String(raw ?? "").replace(/\\r\\n|\\n|\\r/g, "\n").trim();
+        raw = wordTimedLyricToLrc(raw) ?? raw;
+        const meta = this.parseMetaImpl(raw);
+        const lrcItems: Array<IParsedLrcItem> = [];
+        let previousLineStart = 0;
+        for (const line of raw.split(/\r\n?|\n/)) {
+            const times = [...line.matchAll(timeReg)];
+            if (!times.length) {
+                const text = line.replace(metaReg, "").trim();
+                // Preserve an explicit continuation instead of collapsing it to spaces.
+                if (text && lrcItems.length) {
+                    for (let i = previousLineStart; i < lrcItems.length; i++) lrcItems[i].lrc += "\n" + text;
+                }
+                continue;
             }
-            lrc = rawLrcs[0]?.trim?.() ?? "";
-            for (j = i; j < i + counter; ++j) {
-                rawLrcItems.push({
-                    time: this.parseTime(rawTimes[j]),
-                    lrc,
-                    index: j,
-                });
+            previousLineStart = lrcItems.length;
+            const pendingTimes: number[] = [];
+            for (let i = 0; i < times.length; i++) {
+                const match = times[i];
+                pendingTimes.push(this.parseTime(match[0]));
+                const end = i + 1 < times.length ? times[i + 1].index : line.length;
+                const text = line.slice(match.index + match[0].length, end).trim();
+                // Adjacent leading timestamps repeat a line, not a blank phrase.
+                if (!text && i + 1 < times.length) continue;
+                for (const time of pendingTimes.splice(0)) {
+                    lrcItems.push({ time: time - (meta.offset ?? 0), lrc: text, index: 0 });
+                }
             }
-            i += counter;
-            if (i < len) {
-                rawLrcItems.push({
-                    time: this.parseTime(rawTimes[i]),
-                    lrc,
-                    index: j,
-                });
-            }
-            rawLrcs.shift();
         }
-        let lrcItems = rawLrcItems.sort((a, b) => a.time - b.time);
-        if (lrcItems.length === 0 && raw.length) {
-            lrcItems = raw.split("\n").map((_, index) => ({
-                time: 0,
-                lrc: _,
-                index,
-            }));
+        if (!lrcItems.length && raw) {
+            return {
+                lrcItems: raw.split(/\r\n?|\n/).map(line => line.replace(metaReg, "").trim())
+                    .filter(Boolean).map((lrc, index) => ({ time: 0, lrc, index })),
+                meta,
+                hasTimeline: false,
+            };
         }
-
-        return {
-            lrcItems,
-            meta,
-        };
+        // Indices describe the sorted timeline shared by both lyric windows.
+        lrcItems.sort((a, b) => a.time - b.time);
+        lrcItems.forEach((item, index) => {
+            item.index = index;
+        });
+        return { lrcItems, meta, hasTimeline: lrcItems.length > 0 };
     }
 }

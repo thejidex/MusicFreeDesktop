@@ -1,0 +1,10 @@
+{
+  "name": "冷峻表情 · 小白花 · 动态",
+  "author": "个人定制",
+  "version": "1.0.0",
+  "preview": "@/preview.jpg",
+  "description": "1080p / 30fps 静音循环视频，冷灰色半透明面板；隐藏窗口暂停播放。",
+  "iframe": {
+    "app": "@/background.html"
+  }
+}

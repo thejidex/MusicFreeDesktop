@@ -1,0 +1,123 @@
+{
+  "previous": "D:\\googleDownload\\MusicFree\\portable\\userData\\musicfree-themepacks\\fyV5nmOiUL3p",
+  "items": [
+    {
+      "name": "二次元少女 · 静态",
+      "installed": {
+        "name": "二次元少女 · 静态",
+        "path": "D:\\googleDownload\\MusicFree\\portable\\userData\\musicfree-themepacks\\eSMXlQV_YGB-",
+        "hash": "4b97bbeb5e14ebb69b601effde49b22a"
+      },
+      "checked": {
+        "path": "D:\\googleDownload\\MusicFree\\portable\\userData\\musicfree-themepacks\\eSMXlQV_YGB-",
+        "hidden": false,
+        "iframeCount": 0,
+        "background": "linear-gradient(90deg, rgba(244, 241, 245, 0.62), rgba(244, 241, 245, 0.28) 50%, rgba(244, 241, 245, 0.18)), url(\"file:///D:/googleDownload/MusicFree/portable/userData/musicfree-themepacks/eSMXlQV_YGB-/background.webp\")",
+        "textColor": "rgb(53, 48, 60)",
+        "primaryColor": "#78586d",
+        "video": null,
+        "image": {
+          "width": 1500,
+          "height": 855
+        }
+      },
+      "screenshot": "D:\\CodexTemp\\MusicFree主题\\工具\\预览\\06-二次元少女-应用效果.png"
+    },
+    {
+      "name": "冷感花影 · 静态",
+      "installed": {
+        "name": "冷感花影 · 静态",
+        "path": "D:\\googleDownload\\MusicFree\\portable\\userData\\musicfree-themepacks\\vvlV48a8SDx7",
+        "hash": "35a65150afdd5067816d4fdc378e3874"
+      },
+      "checked": {
+        "path": "D:\\googleDownload\\MusicFree\\portable\\userData\\musicfree-themepacks\\vvlV48a8SDx7",
+        "hidden": false,
+        "iframeCount": 0,
+        "background": "linear-gradient(90deg, rgba(15, 15, 21, 0.52), rgba(15, 15, 21, 0.3) 50%, rgba(15, 15, 21, 0.2)), url(\"file:///D:/googleDownload/MusicFree/portable/userData/musicfree-themepacks/vvlV48a8SDx7/background.webp\")",
+        "textColor": "rgb(242, 245, 248)",
+        "primaryColor": "#c1b9db",
+        "video": null,
+        "image": {
+          "width": 1920,
+          "height": 1080
+        }
+      },
+      "screenshot": "D:\\CodexTemp\\MusicFree主题\\工具\\预览\\07-冷感花影-应用效果.png"
+    },
+    {
+      "name": "未来世界 · 礼服女孩 · 静态",
+      "installed": {
+        "name": "未来世界 · 礼服女孩 · 静态",
+        "path": "D:\\googleDownload\\MusicFree\\portable\\userData\\musicfree-themepacks\\MHNEdLn7-8IE",
+        "hash": "b4ce440ff912379bcaeb28556261a074"
+      },
+      "checked": {
+        "path": "D:\\googleDownload\\MusicFree\\portable\\userData\\musicfree-themepacks\\MHNEdLn7-8IE",
+        "hidden": false,
+        "iframeCount": 0,
+        "background": "linear-gradient(90deg, rgba(9, 25, 39, 0.52), rgba(9, 25, 39, 0.3) 50%, rgba(9, 25, 39, 0.2)), url(\"file:///D:/googleDownload/MusicFree/portable/userData/musicfree-themepacks/MHNEdLn7-8IE/background.webp\")",
+        "textColor": "rgb(242, 245, 248)",
+        "primaryColor": "#edc79d",
+        "video": null,
+        "image": {
+          "width": 1920,
+          "height": 881
+        }
+      },
+      "screenshot": "D:\\CodexTemp\\MusicFree主题\\工具\\预览\\08-未来世界-礼服女孩-应用效果.png"
+    },
+    {
+      "name": "冷峻表情 · 小白花 · 动态",
+      "installed": {
+        "name": "冷峻表情 · 小白花 · 动态",
+        "path": "D:\\googleDownload\\MusicFree\\portable\\userData\\musicfree-themepacks\\gfJ5XAspM22Z",
+        "hash": "4fd9884e85c6d47d4629bd2fe1492f03"
+      },
+      "checked": {
+        "path": "D:\\googleDownload\\MusicFree\\portable\\userData\\musicfree-themepacks\\gfJ5XAspM22Z",
+        "hidden": false,
+        "iframeCount": 1,
+        "background": "none",
+        "textColor": "rgb(242, 245, 248)",
+        "primaryColor": "#c1b9db",
+        "video": {
+          "time": 2.051867,
+          "duration": 10,
+          "width": 1920,
+          "height": 1080,
+          "paused": false,
+          "muted": true,
+          "loop": true,
+          "readyState": 4,
+          "seeking": false,
+          "error": null
+        },
+        "loopVerified": true,
+        "loopTime": 0.445529
+      },
+      "screenshot": "D:\\CodexTemp\\MusicFree主题\\工具\\预览\\冷峻表情-小白花-应用效果.png"
+    }
+  ],
+  "final": {
+    "path": "D:\\googleDownload\\MusicFree\\portable\\userData\\musicfree-themepacks\\gfJ5XAspM22Z",
+    "hidden": false,
+    "iframeCount": 1,
+    "background": "none",
+    "textColor": "rgb(242, 245, 248)",
+    "primaryColor": "#c1b9db",
+    "video": {
+      "time": 3.975109,
+      "duration": 10,
+      "width": 1920,
+      "height": 1080,
+      "paused": false,
+      "muted": true,
+      "loop": true,
+      "readyState": 4,
+      "seeking": false,
+      "error": null
+    }
+  },
+  "verifiedAt": "2026-10-14T02:25:39.709Z"
+}

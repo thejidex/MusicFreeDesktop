@@ -17,7 +17,5 @@ export default function(text: string, config: IConfig){
     }
     const ctx = canvas.getContext("2d");
     ctx.font = `${fontSize} ${fontFamily ?? ""}`;
-    const metrics = ctx.measureText(text);
-
-    return metrics.width;
+    return Math.max(...String(text).split(/\r\n?|\n/).map(line => ctx.measureText(line).width));
 }

@@ -19,6 +19,32 @@ import Promise = Dexie.Promise;
 class AudioController extends ControllerBase implements IAudioController {
     protected audio: HTMLAudioElement;
     private hls: Hls;
+    private progressTimer: ReturnType<typeof setInterval> | null = null;
+    private lastReportedTime = NaN;
+
+    private publishProgress() {
+        const progress = this.getProgress();
+        this.lastReportedTime = progress.currentTime;
+        this.onProgressUpdate?.(progress);
+    }
+
+    private stopProgressTimer() {
+        if (this.progressTimer !== null) {
+            clearInterval(this.progressTimer);
+            this.progressTimer = null;
+        }
+    }
+
+    private startProgressTimer() {
+        this.stopProgressTimer();
+        this.publishProgress();
+        this.progressTimer = setInterval(() => {
+            if (this.audio.paused || this.audio.ended || this.audio.seeking) return;
+            const progress = this.getProgress();
+            // Read the media clock, never advance lyrics with a wall-clock estimate.
+            if (progress.currentTime !== this.lastReportedTime) this.publishProgress();
+        }, 100);
+    }
 
     private _playerState: PlayerState = PlayerState.None;
     get playerState() {
@@ -46,34 +72,42 @@ class AudioController extends ControllerBase implements IAudioController {
 
         ////// events
         this.audio.onplaying = () => {
+            this.startProgressTimer();
             this.playerState = PlayerState.Playing;
             navigator.mediaSession.playbackState = "playing";
         };
 
         this.audio.onpause = () => {
+            this.stopProgressTimer();
+            this.publishProgress();
             this.playerState = PlayerState.Paused;
             navigator.mediaSession.playbackState = "paused";
         };
 
         this.audio.onerror = (event) => {
+            this.stopProgressTimer();
             this.playerState = PlayerState.Paused;
             navigator.mediaSession.playbackState = "paused";
             this.onError?.(ErrorReason.EmptyResource, event as any);
         };
 
         this.audio.ontimeupdate = () => {
-            this.onProgressUpdate?.(this.getProgress());
+            this.publishProgress();
         };
 
-        // this.audio.onseeking = () => {
-        //     this.playerState = PlayerState.Buffering;
-        // }
-        //
-        // this.audio.onseeked = () => {
-        //     this.playerState = PlayerState.Playing;
-        // }
+        this.audio.onseeking = () => {
+            this.stopProgressTimer();
+            this.publishProgress();
+        };
+        this.audio.onseeked = () => {
+            this.publishProgress();
+            if (!this.audio.paused && !this.audio.ended) this.startProgressTimer();
+        };
+        this.audio.onwaiting = () => this.stopProgressTimer();
 
         this.audio.onended = () => {
+            this.stopProgressTimer();
+            this.publishProgress();
             this.playerState = PlayerState.Paused;
             this.onEnded?.();
         };
@@ -132,6 +166,7 @@ class AudioController extends ControllerBase implements IAudioController {
     }
 
     reset(): void {
+        this.stopProgressTimer();
         this.playerState = PlayerState.None;
         this.audio.src = "";
         this.audio.removeAttribute("src");
@@ -143,9 +178,10 @@ class AudioController extends ControllerBase implements IAudioController {
         if (this.hasSource && isFinite(seconds)) {
             const duration = this.audio.duration;
             this.audio.currentTime = Math.min(
-                seconds,
+                Math.max(0, seconds),
                 isNaN(duration) ? Infinity : duration,
             );
+            this.publishProgress();
         }
     }
 
@@ -163,6 +199,7 @@ class AudioController extends ControllerBase implements IAudioController {
     }
 
     prepareTrack(musicItem: IMusic.IMusicItem) {
+        this.stopProgressTimer();
         this.musicItem = { ...musicItem };
 
         // 1. update metadata
@@ -185,6 +222,7 @@ class AudioController extends ControllerBase implements IAudioController {
     }
 
     setTrackSource(trackSource: IMusic.IMusicSource, musicItem: IMusic.IMusicItem): void {
+        this.stopProgressTimer();
         this.musicItem = { ...musicItem };
 
         // 1. update metadata

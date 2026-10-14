@@ -1,0 +1,62 @@
+[
+  {
+    "name": "二次元少女 · 静态",
+    "type": "static",
+    "key": "06-二次元少女",
+    "source": "D:\\86183\\Pictures\\【哲风壁纸】二次元-宅-少女.jpg",
+    "originalSize": [
+      1500,
+      855
+    ],
+    "displaySize": [
+      1500,
+      855
+    ],
+    "path": "D:\\CodexTemp\\MusicFree主题\\静态主题\\06-二次元少女.mftheme",
+    "bytes": 89001,
+    "sha256": "896ba465909b4b5ef43fac99e7863029ea0c211ebbab36c83ae491574b6c1ac8"
+  },
+  {
+    "name": "冷感花影 · 静态",
+    "type": "static",
+    "key": "07-冷感花影",
+    "source": "D:\\86183\\Pictures\\【哲风壁纸】111111-冷感.jpg",
+    "originalSize": [
+      1920,
+      1080
+    ],
+    "displaySize": [
+      1920,
+      1080
+    ],
+    "path": "D:\\CodexTemp\\MusicFree主题\\静态主题\\07-冷感花影.mftheme",
+    "bytes": 115682,
+    "sha256": "8f34082ecf2519c42fb23d4fd52aec6bead5361d2d35bd16196298e6f572ed3b"
+  },
+  {
+    "name": "未来世界 · 礼服女孩 · 静态",
+    "type": "static",
+    "key": "08-未来世界-礼服女孩",
+    "source": "D:\\86183\\Pictures\\【哲风壁纸】未来世界-礼服女孩.png",
+    "originalSize": [
+      3840,
+      1761
+    ],
+    "displaySize": [
+      1920,
+      881
+    ],
+    "path": "D:\\CodexTemp\\MusicFree主题\\静态主题\\08-未来世界-礼服女孩.mftheme",
+    "bytes": 124183,
+    "sha256": "064f2eb3b0573f9f71484187e6b6c59226aa11cb88dd3834b4948624ad238ed2"
+  },
+  {
+    "name": "冷峻表情 · 小白花 · 动态",
+    "type": "dynamic",
+    "key": "冷峻表情-小白花",
+    "source": "D:\\86183\\Pictures\\【哲风壁纸】冷峻表情-小白花.mp4",
+    "path": "D:\\CodexTemp\\MusicFree主题\\动态主题\\冷峻表情-小白花-动态.mftheme",
+    "bytes": 3963298,
+    "sha256": "dccd3cc8e32ba6ec06e92094e611ae938a2fbd146adfbc8ad6966036e1d7e70d"
+  }
+]

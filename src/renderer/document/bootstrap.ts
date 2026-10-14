@@ -221,8 +221,8 @@ function setupCommandAndEvents() {
 
     trackPlayer.on(PlayerEvents.CurrentLyricChanged, lyric => {
         messageBus.syncAppState({
-            lyricText: lyric.lrc,
-            parsedLrc: lyric,
+            lyricText: lyric?.lrc ?? null,
+            parsedLrc: lyric ?? null,
         });
     });
 
@@ -237,7 +237,7 @@ function setupCommandAndEvents() {
             progress: currentTime?.currentTime || 0,
             duration: currentTime.duration || 0,
         });
-    }, 800);
+    }, 100);
 
     trackPlayer.on(PlayerEvents.ProgressChanged, progressChangedHandler);
 

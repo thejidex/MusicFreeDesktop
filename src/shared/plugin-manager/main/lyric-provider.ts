@@ -2,8 +2,10 @@ import { app } from "electron";
 import fs from "fs/promises";
 import path from "path";
 import { createHash } from "crypto";
+import { Converter } from "opencc-js";
 import axios from "./network/axios";
 import { hasLyric } from "@/common/lyric-util";
+import { hasCompoundLyricLines, wordTimedLyricToLrc } from "@/common/lyric-timing";
 
 interface Candidate {
     source: "netease" | "lrclib";
@@ -16,22 +18,28 @@ interface Candidate {
     instrumental?: boolean;
 }
 
+interface MatchedLyric extends ILyric.ILyricSource {
+    match: Pick<Candidate, "source" | "id" | "title" | "artists" | "duration">;
+}
+
 interface CachedLyric {
+    version: number;
     savedAt: number;
     value: ILyric.ILyricSource;
 }
 
+// Older automatic matches may use coarser timings from a different provider.
+const lyricCacheVersion = 3;
 const maxAge = 7 * 86400000;
 const pending = new Map<string, Promise<ILyric.ILyricSource | null>>();
 const memory = new Map<string, CachedLyric>();
-const traditional: Record<string, string> = {
-    "倫": "伦", "傑": "杰", "陳": "陈", "鄧": "邓", "學": "学", "孫": "孙",
-    "韓": "韩", "劉": "刘", "愛": "爱", "後": "后", "遺": "遗",
-};
+let normalizeChinese: (text: string) => string;
 
 function normalize(value: string) {
-    return String(value || "").normalize("NFKC").toLowerCase().replace(/ø/g, "o")
-        .replace(/[倫傑陳鄧學孫韓劉愛後遺]/g, value => traditional[value])
+    // Providers may spell the same artist/title in Traditional or Simplified Chinese.
+    normalizeChinese ??= Converter({ from: "tw", to: "cn" });
+    return normalizeChinese(String(value || "").normalize("NFKC"))
+        .toLowerCase().replace(/ø/g, "o")
         .replace(/[^\p{L}\p{N}]/gu, "");
 }
 
@@ -61,6 +69,10 @@ export function rankLyricCandidate(item: IMusic.IMusicItem, candidate: Candidate
     const base = normalize(candidate.title.replace(/[（(].*?[)）]/g, ""));
     let score = name === query ? 55 : base === query ? 49 : -100;
     if (score < 0) return score;
+    // The same song in a live/remixed/slowed recording has a different timeline.
+    const versions = [/live|现场|現場/i, /remix|混音/i, /伴奏|instrumental|karaoke/i,
+        /slowed|降调|降調|慢速/i, /sped.?up|升调|升調|加速/i];
+    if (versions.some(pattern => pattern.test(candidate.title) !== pattern.test(item.title))) return -100;
     const video = ["bilibili", "Youtube"].includes(item.platform);
     const hint = normalize(video ? item.title : item.artist);
     const matched = !!hint && candidate.artists.some(artist => {
@@ -71,6 +83,9 @@ export function rankLyricCandidate(item: IMusic.IMusicItem, candidate: Candidate
     else if (!video && item.artist) score -= 45;
     const delta = Math.abs(Number(item.duration) - candidate.duration);
     if (Number.isFinite(delta) && item.duration > 0 && candidate.duration > 0) {
+        // Identical titles/artists can still describe edits of different recordings.
+        // Do not attach their timestamps to ordinary tracks with a known mismatch.
+        if (!video && delta > 8) return -100;
         score += delta <= 4 ? 25 : delta <= 12 ? 18 : delta <= 25 ? 6 : -25;
     }
     if (/伴奏|instrumental|karaoke/i.test(candidate.title) && !/伴奏|instrumental|karaoke/i.test(item.title)) return -100;
@@ -113,8 +128,8 @@ async function fetchLyrics(candidate: Candidate): Promise<ILyric.ILyricSource | 
         if (hasLyric({ rawLrc: candidate.rawLrc })) return { rawLrc: candidate.rawLrc };
         return candidate.instrumental ? { rawLrc: "[00:00.00]纯音乐，请欣赏" } : null;
     }
-    const result = await json("https://music.163.com/api/song/lyric?" + new URLSearchParams({ id: String(candidate.id), lv: "-1", kv: "-1", tv: "-1" }));
-    const rawLrc = result.lrc?.lyric;
+    const result = await json("https://music.163.com/api/song/lyric?" + new URLSearchParams({ id: String(candidate.id), lv: "-1", kv: "-1", tv: "-1", rv: "-1", yv: "-1" }));
+    const rawLrc = wordTimedLyricToLrc(result.yrc?.lyric) ?? result.lrc?.lyric;
     if (hasLyric({ rawLrc }) && /\[\d{1,3}:\d{2}/.test(rawLrc)) {
         return { rawLrc, translation: result.tlyric?.lyric || undefined };
     }
@@ -130,7 +145,13 @@ async function choose(item: IMusic.IMusicItem, title: string, candidates: Candid
     for (const { candidate } of ranked.slice(0, 3)) {
         try {
             const lyric = await fetchLyrics(candidate);
-            if (lyric) return lyric;
+            if (lyric) return {
+                ...lyric,
+                match: {
+                    source: candidate.source, id: candidate.id, title: candidate.title,
+                    artists: candidate.artists, duration: candidate.duration,
+                },
+            };
         } catch {
             // Try another confident match, never fabricate lyrics.
         }
@@ -138,17 +159,45 @@ async function choose(item: IMusic.IMusicItem, title: string, candidates: Candid
     return null;
 }
 
+function lyricTimeline(raw: string) {
+    const text: string[] = [];
+    const times = new Set<string>();
+    for (const row of String(raw || "").split(/\r\n?|\n/)) {
+        const content = row.replace(/\[[^\]]*\]/g, "").trim();
+        if (!content || /^(?:作词|作曲|编曲|編曲|制作|製作|词曲|詞曲|词[:：]|詞[:：]|曲[:：]|演唱|录音|錄音|混音|监制|監製|出品|发行|發行|制作人|製作人)/.test(content)) continue;
+        text.push(content);
+        for (const time of row.match(/\[\d{1,3}:\d{2}(?:\.\d+)?\]/g) || []) times.add(time);
+    }
+    return { text: normalize(text.join("")), cues: times.size };
+}
+
+export function preferFinerLyric(primary: MatchedLyric, alternative?: MatchedLyric | null) {
+    if (!alternative?.rawLrc || !primary.rawLrc || primary.translation) return primary;
+    if (!primary.match || !alternative.match ||
+        normalize(primary.match.artists.join("/")) !== normalize(alternative.match.artists.join("/")) ||
+        !(primary.match.duration > 0 && alternative.match.duration > 0) ||
+        Math.abs(primary.match.duration - alternative.match.duration) > 2) return primary;
+    const one = lyricTimeline(primary.rawLrc);
+    const two = lyricTimeline(alternative.rawLrc);
+    // Compare the same lyrics, not merely a same-title cover or another performance.
+    return one.text && one.text === two.text && two.cues > one.cues
+        ? alternative : primary;
+}
+
 async function find(item: IMusic.IMusicItem) {
     for (const title of getTitleQueries(item)) {
+        let primary: MatchedLyric | null = null;
         try {
-            const lyric = await choose(item, title, await searchNetease(title));
-            if (lyric) return lyric;
+            primary = await choose(item, title, await searchNetease(title));
+            if (primary && !hasCompoundLyricLines(primary.rawLrc || "")) return primary;
         } catch { /* Try the alternative provider. */ }
         try {
             const artist = ["bilibili", "Youtube"].includes(item.platform) ? undefined : item.artist;
-            const lyric = await choose(item, title, await searchLrclib(title, artist));
-            if (lyric) return lyric;
-        } catch { /* No confidently matched lyric available. */ }
+            const alternative = await choose(item, title, await searchLrclib(title, artist));
+            if (primary) return preferFinerLyric(primary, alternative);
+            if (alternative) return alternative;
+        } catch { /* Keep the known match when an optional comparison is unavailable. */ }
+        if (primary) return primary;
     }
     return null;
 }
@@ -157,13 +206,13 @@ export async function resolveMissingLyric(item: IMusic.IMusicItem): Promise<ILyr
     if (!item?.title) return null;
     const key = createHash("sha256").update(JSON.stringify([item.platform, item.id, item.title, item.artist, item.duration])).digest("hex");
     const cached = memory.get(key);
-    if (cached?.savedAt > Date.now() - maxAge) return cached.value;
+    if (cached?.version === lyricCacheVersion && cached.savedAt > Date.now() - maxAge) return cached.value;
     if (pending.has(key)) return pending.get(key);
     const file = path.join(app.getPath("userData"), "lyric-cache", key + ".json");
     const work = (async () => {
         try {
             const cached: CachedLyric = JSON.parse(await fs.readFile(file, "utf8"));
-            if (cached.savedAt > Date.now() - maxAge && hasLyric(cached.value)) {
+            if (cached.version === lyricCacheVersion && cached.savedAt > Date.now() - maxAge && hasLyric(cached.value)) {
                 if (memory.size >= 256) memory.delete(memory.keys().next().value);
                 memory.set(key, cached);
                 return cached.value;
@@ -171,7 +220,7 @@ export async function resolveMissingLyric(item: IMusic.IMusicItem): Promise<ILyr
         } catch { /* Cache is optional. */ }
         const value = await find(item);
         if (value) {
-            const cached = { savedAt: Date.now(), value };
+            const cached: CachedLyric = { version: lyricCacheVersion, savedAt: Date.now(), value };
             if (memory.size >= 256) memory.delete(memory.keys().next().value);
             memory.set(key, cached);
             try {
