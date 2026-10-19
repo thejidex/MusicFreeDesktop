@@ -66,7 +66,9 @@
     "music_repeat_mode": "Repeat Mode",
     "music_repeat_mode_loop": "Single Loop",
     "music_repeat_mode_queue": "Queue Loop",
-    "music_repeat_mode_shuffle": "Shuffle Play"
+    "music_repeat_mode_shuffle": "Shuffle Play",
+    "local_play_count": "Play count",
+    "play_count_sort_hint": "Click to cycle: play count ascending → descending → original order"
   },
 
   "plugin": {
@@ -173,7 +175,10 @@
     "minimize": "Minimize",
     "minimode": "Minimode",
     "exit": "Exit",
-    "theme": "Theme"
+    "theme": "Theme",
+    "show_sidebar": "Show sidebar",
+    "hide_sidebar": "Hide sidebar",
+    "cycle_window_mode": "Window mode: normal → maximized → fullscreen → normal"
   },
   "music_bar": {
     "open_music_detail_page": "Open Song Details",
@@ -280,7 +285,10 @@
       "max_history_length": "Maximum search history entries",
       "music_list_hide_columns": "Hide columns in song list",
       "languages": "Languages",
-      "toast_switch_language_fail": "Switching language failed"
+      "toast_switch_language_fail": "Switching language failed",
+      "hide_sidebar": "Hide sidebar",
+      "show_play_count": "Show play counts in song lists",
+      "play_count_hint": "Count once when playback starts. Resuming, seeking and changing quality do not add a play. Click Play count to sort ascending or descending."
     },
     "play_music": {
       "case_sensitive_in_search": "Case-sensitive search in playlist",

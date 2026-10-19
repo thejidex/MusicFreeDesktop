@@ -35,6 +35,8 @@ const _defaultAppConfig: IAppConfig =  {
     },
     "download.concurrency": 5,
     "normal.musicListColumnsShown": [],
+    "normal.hideSidebar": false,
+    "normal.showPlayCount": false,
     "backup.resumeBehavior": "append",
     "normal.language": "zh-CN",
 };

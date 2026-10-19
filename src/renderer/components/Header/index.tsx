@@ -21,6 +21,7 @@ export default function AppHeader() {
     const isHistoryFocusRef = useRef(false);
 
     const isMiniMode = useAppConfig("private.minimode");
+    const hideSidebar = useAppConfig("normal.hideSidebar");
 
     const { t } = useTranslation();
 
@@ -44,6 +45,16 @@ export default function AppHeader() {
     return (
         <div className="header-container">
             <div className="left-part">
+                <button
+                    type="button"
+                    className="sidebar-toggle"
+                    title={t(hideSidebar ? "app_header.show_sidebar" : "app_header.hide_sidebar")}
+                    aria-label={t(hideSidebar ? "app_header.show_sidebar" : "app_header.hide_sidebar")}
+                    aria-expanded={!hideSidebar}
+                    onClick={() => AppConfig.setConfig({ "normal.hideSidebar": !hideSidebar })}
+                >
+                    <SvgAsset iconName="list-bullet"></SvgAsset>
+                </button>
                 <div className="logo">
                     <SvgAsset iconName="logo"></SvgAsset>
                 </div>
@@ -152,7 +163,7 @@ export default function AppHeader() {
                 >
                     <SvgAsset iconName="minus"></SvgAsset>
                 </div>
-                <div role="button" className="header-button" onClick={() => {
+                <div role="button" className="header-button" title={t("app_header.cycle_window_mode")} aria-label={t("app_header.cycle_window_mode")} onClick={() => {
                     appWindowUtil.toggleMainWindowMaximize();
                 }}>
                     <SvgAsset iconName="square"></SvgAsset>

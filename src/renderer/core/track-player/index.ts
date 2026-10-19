@@ -31,6 +31,7 @@ import { createUniqueMap } from "@/common/unique-map";
 import { getLinkedLyric } from "@renderer/core/link-lyric";
 import { fsUtil } from "@shared/utils/renderer";
 import PluginManager from "@shared/plugin-manager/renderer";
+import playCounts from "@/renderer/core/play-counts";
 
 const {
     musicQueueStore,
@@ -134,6 +135,7 @@ class TrackPlayer {
     private currentIndex = -1;
 
     private audioController: IAudioController;
+    private playCountPending = true;
 
     private ee: EventEmitter<InternalPlayerEvents>;
 
@@ -217,6 +219,7 @@ class TrackPlayer {
 
         audioController.onPlayerStateChanged = (state) => {
             this.setPlayerState(state);
+            this.countStartedPlayback(state, audioController.musicItem);
         };
 
         audioController.onError = async (type, reason) => {
@@ -325,14 +328,18 @@ class TrackPlayer {
         // 2. same media
         if (this.currentIndex === index && this.isCurrentMusic(this.musicQueue[index]) && !refreshSource) {
             if (restartOnSameMedia) {
+                this.playCountPending = true;
                 this.seekTo(0);
             }
             this.audioController.play();
+            // Seeking within an already playing track need not emit another playing event.
+            this.countStartedPlayback(this.audioController.playerState, this.audioController.musicItem);
 
             return;
         }
 
         // update music
+        this.playCountPending = true;
         const nextMusicItem = this.musicQueue[index];
         this.setCurrentMusic(nextMusicItem);
         this.currentIndex = index;
@@ -818,6 +825,13 @@ class TrackPlayer {
     private setPlayerState(playerState: PlayerState) {
         playerStateStore.setValue(playerState);
         this.ee.emit(PlayerEvents.StateChanged, playerState);
+    }
+
+    private countStartedPlayback(state: PlayerState, item: IMusic.IMusicItem | null) {
+        if (state === PlayerState.Playing && this.playCountPending && this.isCurrentMusic(item)) {
+            this.playCountPending = false;
+            void playCounts.recordPlay(item).catch(error => logger.logError("保存播放次数失败", error));
+        }
     }
 
     // 获取音乐在播放列表中的下标

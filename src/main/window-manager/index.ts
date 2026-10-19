@@ -1,4 +1,5 @@
 import { app, BrowserWindow, nativeImage, screen } from "electron";
+import { exitWindowFullscreen } from "./window-mode";
 import getResourcePath from "@/common/get-resource-path";
 import { IWindowEvents, IWindowManager } from "@/types/main/window-manager";
 import { localPluginName, PlayerState, ResourceName } from "@/common/constant";
@@ -112,6 +113,7 @@ class WindowManager implements IWindowManager {
         });
 
         const updateWindowSizeConfig = debounce(() => {
+            if (mainWindow.isDestroyed() || mainWindow.isMaximized() || mainWindow.isFullScreen()) return;
             const [wWidth, wHeight] = mainWindow.getSize();
             AppConfig.setConfig({
                 "private.mainWindowSize": {
@@ -124,6 +126,12 @@ class WindowManager implements IWindowManager {
             trailing: true,
         });
         mainWindow.on("resize", updateWindowSizeConfig);
+        mainWindow.webContents.on("before-input-event", (event, input) => {
+            if (input.type === "keyDown" && input.key === "Escape" && mainWindow.isFullScreen()) {
+                event.preventDefault();
+                exitWindowFullscreen(mainWindow);
+            }
+        });
 
         // 2. 加载主界面
         const initUrl = new URL(MAIN_WINDOW_WEBPACK_ENTRY);

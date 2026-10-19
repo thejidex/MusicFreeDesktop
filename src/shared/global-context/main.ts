@@ -9,7 +9,7 @@ declare const DB_WEBPACK_ENTRY: string;
 export function setupGlobalContext() {
     ipcMain.on(_IpcRendererEvt.GET_GLOBAL_DATA, (evt) => {
         evt.returnValue = {
-            appVersion: app.getVersion(),
+            appVersion: app.getVersion().split(".").slice(0, 2).join("."),
             workersPath: {
                 downloader: WORKER_DOWNLOADER_WEBPACK_ENTRY,
                 localFileWatcher: LOCAL_FILE_WATCHER_WEBPACK_ENTRY,

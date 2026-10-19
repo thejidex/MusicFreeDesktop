@@ -62,6 +62,7 @@ const player = load("src/renderer/core/track-player/index.ts", {
     "./collection": {},
     "@/common/lyric-util": {},
     "@shared/logger/renderer": {},
+    "@/renderer/core/play-counts": {},
     "@/common/void-callback": () => {},
     "@/common/time-util": {},
     "@/common/unique-map": {},

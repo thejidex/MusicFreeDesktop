@@ -66,7 +66,9 @@
     "music_repeat_mode": "重複模式",
     "music_repeat_mode_loop": "單曲重複",
     "music_repeat_mode_queue": "列表重複",
-    "music_repeat_mode_shuffle": "隨機播放"
+    "music_repeat_mode_shuffle": "隨機播放",
+    "local_play_count": "播放次數",
+    "play_count_sort_hint": "點擊切換：播放次數升序 → 降序 → 原順序"
   },
 
   "plugin": {
@@ -173,7 +175,10 @@
     "minimize": "最小化",
     "minimode": "迷你模式",
     "exit": "退出",
-    "theme": "主題"
+    "theme": "主題",
+    "show_sidebar": "顯示左側功能列",
+    "hide_sidebar": "隱藏左側功能列",
+    "cycle_window_mode": "視窗模式：一般 → 最大化 → 全螢幕 → 一般"
   },
   "music_bar": {
     "open_music_detail_page": "打開歌曲詳情",
@@ -280,7 +285,10 @@
       "max_history_length": "搜尋歷史記錄最大數量",
       "music_list_hide_columns": "歌曲列表隱藏列",
       "languages": "語言",
-      "toast_switch_language_fail": "切換語言失敗"
+      "toast_switch_language_fail": "切換語言失敗",
+      "hide_sidebar": "隱藏左側功能列",
+      "show_play_count": "在歌單中顯示播放次數",
+      "play_count_hint": "實際開始播放計一次；暫停繼續、拖動進度、切換音質不重複計數。點擊「播放次數」欄位可升序或降序排列。"
     },
     "play_music": {
       "case_sensitive_in_search": "搜尋歌單時區分大小寫",

@@ -21,7 +21,7 @@ import { localPluginName, RequestStateCode } from "@/common/constant";
 import BottomLoadingState from "../BottomLoadingState";
 import { IContextMenuItem, showContextMenu } from "../ContextMenu";
 import { getInternalData, getMediaPrimaryKey, isSameMedia } from "@/common/media-util";
-import { CSSProperties, memo, useCallback, useEffect, useRef, useState } from "react";
+import { CSSProperties, memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { showModal } from "../Modal";
 import useVirtualList from "@/hooks/useVirtualList";
 import hotkeys from "hotkeys-js";
@@ -37,6 +37,7 @@ import AppConfig from "@shared/app-config/renderer";
 import { shellUtil } from "@shared/utils/renderer";
 import useAppConfig from "@/hooks/useAppConfig";
 import messageBus from "@shared/message-bus/renderer/main";
+import playCounts, { playCountKey } from "@/renderer/core/play-counts";
 
 interface IMusicListProps {
     /** 展示的播放列表 */
@@ -57,7 +58,7 @@ interface IMusicListProps {
     };
     containerStyle?: CSSProperties;
     hideRows?: Array<
-        "like" | "index" | "title" | "artist" | "album" | "duration" | "platform"
+        "like" | "index" | "title" | "artist" | "album" | "duration" | "platform" | "playCount"
     >;
     /** 允许拖拽 */
     enableDrag?: boolean;
@@ -340,18 +341,36 @@ function _MusicList(props: IMusicListProps) {
     } = props;
 
     const [sorting, setSorting] = useState<SortingState>([]);
+    const counts = playCounts.useCounts();
+    const showPlayCount = useAppConfig("normal.showPlayCount");
+    const columns = useMemo(() => [
+        ...columnDef,
+        columnHelper.accessor(item => counts.get(playCountKey(item)) ?? 0, {
+            id: "playCount",
+            header: () => i18n.t("media.local_play_count"),
+            size: 90,
+            minSize: 90,
+            maxSize: 120,
+            cell: info => info.getValue(),
+            sortingFn: "basic",
+            sortDescFirst: false,
+        }),
+    ], [counts]);
+    // Invalidate TanStack's cached accessor values when a local count changes.
+    const tableData = useMemo(() => [...musicList], [musicList, counts]);
+    const canDrag = enableDrag && sorting.length === 0;
 
     const musicListRef = useRef(musicList);
     const hiddenColumns = useAppConfig("normal.musicListColumnsShown") ?? [];
-    const columnVisibility = [...hiddenColumns, ...(hideRows ?? [])].reduce(
+    const columnVisibility = [...hiddenColumns, ...(hideRows ?? []), ...(!showPlayCount ? ["playCount"] : [])].reduce(
         (visibility, column) => ({ ...visibility, [column]: false }),
         {},
     );
 
     const table = useReactTable({
         debugAll: false,
-        data: musicList,
-        columns: columnDef,
+        data: tableData,
+        columns,
         state: {
             sorting: sorting,
             columnVisibility,
@@ -381,7 +400,14 @@ function _MusicList(props: IMusicListProps) {
         setActiveItems(new Set());
         lastActiveIndexRef.current = 0;
         musicListRef.current = musicList;
-    }, [musicList, sorting, musicSheet?.id]);
+    }, [musicList, sorting, musicSheet?.id, counts]);
+
+    useEffect(() => {
+        if (!showPlayCount) {
+            setSorting(previous => previous.some(item => item.id === "playCount")
+                ? previous.filter(item => item.id !== "playCount") : previous);
+        }
+    }, [showPlayCount]);
 
     useEffect(() => messageBus.onCommand("EditSelectedMusic", () => {
         const container = tableContainerRef.current;
@@ -458,6 +484,8 @@ function _MusicList(props: IMusicListProps) {
                             <th
                                 key={header.id}
                                 data-id={header.id}
+                                title={header.id === "playCount" ? i18n.t("media.play_count_sort_hint") : undefined}
+                                aria-sort={header.column.getIsSorted() === "asc" ? "ascending" : header.column.getIsSorted() === "desc" ? "descending" : "none"}
                                 style={{
                                 //@ts-ignore
                                     width: header.column.columnDef.fr
@@ -596,7 +624,7 @@ function _MusicList(props: IMusicListProps) {
                                         trackPlayer.playMusic(row.original);
                                     }
                                 }}
-                                draggable={enableDrag}
+                                draggable={canDrag}
                                 onDragStart={(e) => {
                                 // TODO
                                 // if(activeItems) {
@@ -619,7 +647,7 @@ function _MusicList(props: IMusicListProps) {
                                         {flexRender(cell.column.columnDef.cell, cell.getContext())}
                                     </td>
                                 ))}
-                                <IfTruthy condition={enableDrag}>
+                                <IfTruthy condition={canDrag}>
                                     <IfTruthy condition={index === 0}>
                                         <DragReceiver
                                             position="top"

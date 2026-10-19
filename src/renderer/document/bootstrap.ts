@@ -18,6 +18,8 @@ import { IAppState } from "@shared/message-bus/type";
 import MusicDetail from "@renderer/components/MusicDetail";
 import shortCut from "@shared/short-cut/renderer";
 import { getMediaPrimaryKey } from "@/common/media-util";
+import playCounts from "@/renderer/core/play-counts";
+import logger from "@shared/logger/renderer";
 
 
 setAutoFreeze(false);
@@ -26,6 +28,7 @@ export default async function () {
     await Promise.all([
         AppConfig.setup(),
         PluginManager.setup(),
+        playCounts.setup().catch(error => logger.logError("读取播放次数失败", error)),
     ]);
     await Promise.all([
         MusicSheet.frontend.setupMusicSheets(),

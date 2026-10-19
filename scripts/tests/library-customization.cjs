@@ -118,7 +118,13 @@ if (process.type === "renderer") {
     const out = path.join(repo, "out");
     fs.mkdirSync(out, { recursive: true });
     const profile = fs.mkdtempSync(path.join(out, "library-customization-test-"));
-    app.setPath("userData", profile);
+    for (const name of ["appData", "userData", "temp", "crashDumps"]) {
+        const folder = path.join(profile, name);
+        fs.mkdirSync(folder);
+        app.setPath(name, folder);
+    }
+    app.setPath("sessionData", path.join(profile, "userData"));
+    app.setAppLogsPath(path.join(profile, "logs"));
     app.whenReady().then(async () => {
         const fixture = path.join(profile, "fixture.html");
         fs.writeFileSync(fixture, "<!doctype html><title>MusicFree isolated database test</title>");

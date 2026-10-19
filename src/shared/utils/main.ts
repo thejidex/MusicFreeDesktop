@@ -4,6 +4,7 @@ import fs from "fs/promises";
 import { appUpdateSources } from "@/common/constant";
 import axios from "axios";
 import { compare } from "compare-versions";
+import { cycleWindowMode } from "@/main/window-manager/window-mode";
 
 class Utils {
     private windowManager: IWindowManager;
@@ -30,7 +31,7 @@ class Utils {
         ipcMain.handle("@shared/utils/check-update", async () => {
             const currentVersion = app.getVersion();
             const updateInfo: ICommon.IUpdateInfo = {
-                version: currentVersion,
+                version: currentVersion.split(".").slice(0, 2).join("."),
             };
             for (let i = 0; i < appUpdateSources.length; ++i) {
                 try {
@@ -114,11 +115,7 @@ class Utils {
             const mainWindow = this.windowManager.mainWindow;
 
             if (mainWindow) {
-                if (mainWindow.isMaximized()) {
-                    mainWindow.unmaximize();
-                } else {
-                    mainWindow.maximize();
-                }
+                cycleWindowMode(mainWindow);
             }
         });
 

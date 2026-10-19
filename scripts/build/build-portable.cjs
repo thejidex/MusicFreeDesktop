@@ -51,7 +51,10 @@ async function main() {
   }
   const args = process.argv.slice(2);
   const sourceManifest = JSON.parse(fs.readFileSync(path.join(repo, 'package.json'), 'utf8'));
-  let tag = 'v' + sourceManifest.version.replace(/\.0$/, '');
+  const versionParts = /^(\d+)\.(\d+)\.0$/.exec(sourceManifest.version);
+  if (!versionParts) throw new Error('Use x.x.0 in npm metadata; public releases are named x.x.');
+  const releaseVersion = versionParts[1] + '.' + versionParts[2];
+  let tag = 'v' + releaseVersion;
   let output;
   let skipPackage = false;
   while (args.length) {
@@ -60,12 +63,12 @@ async function main() {
     else if (option === '--output') output = args.shift();
     else if (option === '--skip-package') skipPackage = true;
     else if (option === '--help') {
-      console.log('node scripts/build/build-portable.cjs [--tag v1.1.1] [--output DIRECTORY] [--skip-package]');
+      console.log('node scripts/build/build-portable.cjs [--tag v1.2] [--output DIRECTORY] [--skip-package]');
       console.log('Default: use the package version and save release files in ./release.');
       return;
     } else throw new Error('Unknown option: ' + option);
   }
-  if (!tag || !/^v[0-9][A-Za-z0-9._-]*$/.test(tag)) throw new Error('Invalid release tag.');
+  if (tag !== 'v' + releaseVersion) throw new Error('Release tag must match the two-part version: v' + releaseVersion);
   if (output === '') throw new Error('Output directory cannot be empty.');
   output = path.resolve(output || path.join(repo, 'release'));
   const stem = 'MusicFree-' + tag + '-win-x64';
@@ -132,7 +135,7 @@ async function main() {
   await require('rcedit')(path.join(stage, 'MusicFree.exe'), {
     icon: path.join(repo, 'res', 'logo.ico'),
     'version-string': { ProductName: 'MusicFree', FileDescription: 'MusicFree Desktop - thejidex' },
-    'file-version': manifest.version, 'product-version': manifest.version,
+    'file-version': releaseVersion, 'product-version': releaseVersion,
   });
   if (!manifest.main || manifest.main === 'portable-start.cjs') throw new Error('Unexpected packaged entry point.');
   fs.copyFileSync(path.join(__dirname, 'portable', 'portable-init.cjs'), path.join(appFolder, 'portable-init.cjs'));
@@ -169,6 +172,10 @@ async function main() {
     '我的歌单中左键选中单首歌曲后，Ctrl+Z 打开编辑；输入框中保留正常撤销。',
     '我的歌单内右键单首歌曲可编辑歌名、作者、专辑和显示来源。',
     '设置 → 常规可隐藏歌曲列表的专辑、来源列。播放列表显示歌曲序号。',
+    '左上角列表按钮隐藏或展开左侧功能栏，选择会保存；设置 → 常规也可调整。',
+    '右上角方框按钮循环切换普通窗口、最大化、真全屏；Esc 退出真全屏。',
+    '设置 → 常规 → 在歌单中显示播放次数；点击播放次数表头可升序、降序排序。',
+    '播放次数从新版开始记录，实际播放计一次，暂停继续、拖动进度、切换音质不重复计数。',
     '歌词缺失自动匹配默认启用，会向网易云音乐或 LRCLIB 查询歌曲信息，可在设置中关闭。',
     '本 Fork 请从本仓库 Releases 更新。',
     '保留 MusicFree 与第三方组件的许可证文件。',
@@ -180,7 +187,7 @@ async function main() {
     tag, sourceRepository: 'https://github.com/thejidex/MusicFreeDesktop',
     sourceBaseCommit: revision, sourceWorktreeModified: sourceModified,
     builtAt: new Date().toISOString(), platform: 'win32', arch: 'x64',
-    appVersion: manifest.version,
+    appVersion: releaseVersion, packageVersion: manifest.version,
   }, null, 2));
   const relativeFiles = filesUnder(stage);
   const forbidden = /(^|\/)(private-migration-backup|musicfree-plugin-storage|musicfree-plugins|musicfree-themepacks|lyric-cache|IndexedDB|Local Storage)(\/|$)/i;
@@ -221,7 +228,7 @@ async function main() {
     sha256(exeFile) + '  ' + path.basename(exeFile) + '\n' +
     payloadId + '  ' + path.basename(zipFile) + '\n');
   fs.writeFileSync(buildManifestFile, JSON.stringify({
-    tag, appVersion: manifest.version, sourceBaseCommit: revision, sourceWorktreeModified: sourceModified,
+    tag, appVersion: releaseVersion, packageVersion: manifest.version, sourceBaseCommit: revision, sourceWorktreeModified: sourceModified,
     containsPersonalData: false, emptyPortable: true,
     assets: [exeFile, zipFile, checksumFile].map(file => path.basename(file)),
     files: Object.fromEntries(relativeFiles.map(relative => [relative, {

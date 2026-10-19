@@ -59,7 +59,9 @@
     "music_repeat_mode": "播放模式",
     "music_repeat_mode_loop": "单曲循环",
     "music_repeat_mode_queue": "列表循环",
-    "music_repeat_mode_shuffle": "随机播放"
+    "music_repeat_mode_shuffle": "随机播放",
+    "local_play_count": "播放次数",
+    "play_count_sort_hint": "点击切换：播放次数升序 → 降序 → 原顺序"
   },
   "plugin": {
     "prop_user_variable": "用户变量",
@@ -154,7 +156,10 @@
     "minimize": "最小化",
     "minimode": "迷你模式",
     "exit": "退出",
-    "theme": "主题"
+    "theme": "主题",
+    "show_sidebar": "显示左侧功能栏",
+    "hide_sidebar": "隐藏左侧功能栏",
+    "cycle_window_mode": "窗口模式：普通 → 最大化 → 全屏 → 普通"
   },
   "music_bar": {
     "open_music_detail_page": "打开歌曲详情页",
@@ -258,7 +263,10 @@
       "max_history_length": "搜索历史记录最多保存条数",
       "music_list_hide_columns": "歌曲列表隐藏列",
       "languages": "语言",
-      "toast_switch_language_fail": "切换语言失败"
+      "toast_switch_language_fail": "切换语言失败",
+      "hide_sidebar": "隐藏左侧功能栏",
+      "show_play_count": "在歌单中显示播放次数",
+      "play_count_hint": "实际开始播放计一次；暂停继续、拖动进度、切换音质不重复计数。点击“播放次数”表头可升序或降序排列。"
     },
     "play_music": {
       "case_sensitive_in_search": "歌单内搜索时区分大小写",

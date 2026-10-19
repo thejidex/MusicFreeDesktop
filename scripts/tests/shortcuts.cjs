@@ -234,6 +234,8 @@ async function testCommands() {
         "@/shared/i18n/renderer": {},
         "@/shared/themepack/renderer": {},
         "../core/recently-playlist": {},
+        "@/renderer/core/play-counts": {},
+        "@shared/logger/renderer": {},
         "@shared/service-manager/renderer": {},
         "@renderer/core/track-player/enum": { PlayerEvents: {} },
         "@shared/utils/renderer": {},

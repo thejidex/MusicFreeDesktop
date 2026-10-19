@@ -5,11 +5,24 @@
 
 基于 [猫头猫（maotoumao）的 MusicFreeDesktop](https://github.com/maotoumao/MusicFreeDesktop) 的个人 Fork，由 [thejidex](https://github.com/thejidex) 维护。保留原项目的插件化播放、歌单和主题功能，改进日常播放与歌曲管理体验。本仓库并非原作者的官方发行版。
 
-**当前源码版本：v1.1.1**，基于 MusicFreeDesktop 0.0.8。便携包面向 **Windows x64**，已在 Windows 11 验证；其他平台源码保留，但本版本未验证其构建和运行。
+**当前版本：v1.2**，基于 MusicFreeDesktop 0.0.8。便携包面向 **Windows x64**；其他平台源码保留，但本版本未验证其构建和运行。
 
 [下载发布版](https://github.com/thejidex/MusicFreeDesktop/releases) · [反馈问题](https://github.com/thejidex/MusicFreeDesktop/issues) · [更新记录](./docs/changelog.md) · [上游仓库](https://github.com/maotoumao/MusicFreeDesktop)
 
 ## 本次更新
+
+v1.2 在 v1.1.1 的基础上增加以下功能：
+
+| 功能 | 使用方式 |
+| --- | --- |
+| 隐藏左侧功能栏 | 点击左上角列表按钮隐藏或展开；也可在“设置 → 常规”勾选“隐藏左侧功能栏”。重启后保留选择。 |
+| 精简关于页 | “关于 MusicFree”仅显示原作者 GitHub、thejidex GitHub、本仓库地址和当前版本。许可证及完整版权声明仍保留在程序文件中。 |
+| 三种窗口状态 | 连续点击右上角方框按钮，按“普通窗口 → 最大化 → 真全屏 → 普通窗口”循环。真全屏隐藏 Windows 任务栏；`Esc` 也可退出真全屏。 |
+| 本机播放次数 | “设置 → 常规 → 在歌单中显示播放次数”控制该列，默认隐藏。点击“播放次数”表头依次切换数值升序、降序、原顺序。 |
+
+播放次数从此版本开始累计，**实际开始播放时计一次**；暂停继续、缓冲恢复、拖动进度、切换音质不重复计数，重新播放与单曲循环会增加次数，播放失败不计数。统计按原始音源和歌曲 ID 保存，同一首歌在不同歌单中共用次数，修改歌名或显示来源不会丢失统计。隐藏该列仍继续记录，重启后保留；不根据旧的“最近播放”记录推算历史次数。按列排序时暂停拖拽调整歌单顺序，取消排序后恢复。
+
+## v1.1 系列改进
 
 以下变化相对于本仓库此前的 [master 提交 68815fa](https://github.com/thejidex/MusicFreeDesktop/commit/68815fa8c662a0cdd7201a4835adc44b166f3caf)（2026-10-14，软件版本 0.0.8）。
 
@@ -43,11 +56,11 @@
 
 在 [Releases](https://github.com/thejidex/MusicFreeDesktop/releases) 对应版本的 **Assets** 中下载，实际已发布的版本以该页面为准：
 
-- `MusicFree-v1.1.1-win-x64.exe`：双击自动解压并启动，无需安装。
-- `MusicFree-v1.1.1-win-x64.zip`：完整解压后运行其中的 `MusicFree.exe`。
-- `SHA256SUMS-v1.1.1.txt`：用于核对下载文件的 SHA-256。
+- `MusicFree-v1.2-win-x64.exe`：双击自动解压并启动，无需安装。
+- `MusicFree-v1.2-win-x64.zip`：完整解压后运行其中的 `MusicFree.exe`。
+- `SHA256SUMS-v1.2.txt`：用于核对下载文件的 SHA-256。
 
-将 EXE 放在普通的可写文件夹。首次运行会在旁边生成 `MusicFree-v1.1.1` 文件夹，以后也可直接运行其中的 `MusicFree.exe`。**请保留整个程序文件夹**，其中的 `portable` 保存歌单、插件、主题、设置、缓存和日志。歌曲默认下载到 `portable/downloads`，可在设置中更改。
+将 EXE 放在普通的可写文件夹。首次运行会在旁边生成 `MusicFree-v1.2` 文件夹，以后也可直接运行其中的 `MusicFree.exe`。**请保留整个程序文件夹**，其中的 `portable` 保存歌单、插件、主题、设置、播放次数、缓存和日志。歌曲默认下载到 `portable/downloads`，可在设置中更改。
 
 发布包不预装第三方音源插件，也不包含个人歌单、账号或配置。安装插件后再搜索和播放，可参考 [MusicFree 文档](https://musicfree.catcat.work/) 与 [插件示例](https://github.com/maotoumao/MusicFreePlugins)。仓库随附供下载者使用的主题包，下载仓库后可按下方说明安装主题。
 
@@ -96,9 +109,10 @@ npx tsc --noEmit
 npm run test:shortcuts
 npm run test:library
 npm run test:playback-metadata
+npm run test:play-counts
 ```
 
-`test:library` 在隐藏的 Electron 窗口中使用 `out` 下的独立数据库，不会读取日常使用的歌单。
+`test:library` 和 `test:play-counts` 在隐藏的 Electron 窗口中使用 `out` 下的独立数据库，不会读取日常使用的歌单。后者覆盖播放次数持久化、并发递增、数值排序、播放事件去重和三种窗口状态的切换逻辑。
 
 ## 构建和发布
 
@@ -108,9 +122,9 @@ npm run test:playback-metadata
 npm run build:release
 ```
 
-构建脚本从当前源码生成程序，默认标签取自 `package.json`，当前为 `v1.1.1`。最终 EXE、ZIP 和校验文件位于根目录 `release/`；构建清单及临时文件位于 `out/` 和 `.webpack/`，避免混入交付目录。自动解压启动器使用 Windows 自带的 .NET Framework C# 编译器；原生依赖如需编译，还需对应的 C++ 构建工具。
+构建脚本从当前源码生成程序，当前标签为 `v1.2`。界面、发布文件名和 Git 标签统一使用 `x.x`，后续依次使用 `v1.3`、`v1.4` 等；npm 内部元数据使用 `x.x.0` 以兼容工具链，不作为对外版本名称。最终 EXE、ZIP 和校验文件位于根目录 `release/`；构建清单及临时文件位于 `out/` 和 `.webpack/`，避免混入交付目录。自动解压启动器使用 Windows 自带的 .NET Framework C# 编译器；原生依赖如需编译，还需对应的 C++ 构建工具。
 
-同名发布文件存在时脚本会停止，以避免覆盖；更新版本时同步修改 `package.json`、`package-lock.json` 和 `release/version.json`。清理旧包前先检查是否仍需保留，尤其不要删除使用中的 `portable` 数据。
+同名发布文件存在时脚本会停止，以避免覆盖；更新版本时同步修改 `package.json`、`package-lock.json` 中的内部版本与 `release/version.json` 中的两段版本号。清理旧包前先检查是否仍需保留，尤其不要删除使用中的 `portable` 数据。上传 GitHub 前可删除本机的 `node_modules/`、`out/` 和 `.webpack/`，需要开发时执行 `npm ci` 即可重新生成依赖。
 
 仓库中的手动 **Build** 工作流使用相同的构建命令生成 Windows 包，**Release** 工作流根据指定的构建运行创建草稿发布。发布标签必须指向生成该程序的源码提交。此版本的工作流尚需在 GitHub Actions 上实际运行验证。
 

@@ -1,7 +1,7 @@
 {
   "name": "musicfree-desktop",
   "productName": "MusicFree",
-  "version": "1.1.1",
+  "version": "1.2.0",
   "description": "一个插件化的音乐播放器",
   "main": ".webpack/main",
   "scripts": {
@@ -16,7 +16,8 @@
     "test:playback-metadata": "node scripts/tests/playback-metadata.cjs",
     "lint": "eslint --config config/eslint.config.mjs ./src --fix",
     "lint-staged": "lint-staged",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "test:play-counts": "electron scripts/tests/play-counts.cjs"
   },
   "keywords": [],
   "author": {

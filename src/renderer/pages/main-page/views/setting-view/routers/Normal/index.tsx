@@ -18,6 +18,15 @@ export default function Normal() {
     return (
         <div className="setting-view--normal-container">
             <CheckBoxSettingItem
+                label={t("settings.normal.hide_sidebar")}
+                keyPath="normal.hideSidebar"
+            ></CheckBoxSettingItem>
+            <CheckBoxSettingItem
+                label={t("settings.normal.show_play_count")}
+                keyPath="normal.showPlayCount"
+            ></CheckBoxSettingItem>
+            <div className="setting-row">{t("settings.normal.play_count_hint")}</div>
+            <CheckBoxSettingItem
                 label={t("settings.normal.check_update")}
                 keyPath="normal.checkUpdate"
             ></CheckBoxSettingItem>

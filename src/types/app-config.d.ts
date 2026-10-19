@@ -6,6 +6,8 @@ interface _IAppConfig {
     "normal.autoLoadMore": boolean;
     "normal.taskbarThumb": "window" | "artwork";
     "normal.musicListColumnsShown": Array<"album" | "duration" | "platform">;
+    "normal.hideSidebar": boolean;
+    "normal.showPlayCount": boolean;
     "normal.language": string;
 
     /** 歌单内搜索区分大小写 */

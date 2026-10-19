@@ -2,11 +2,8 @@
     & .about-version {
         display: flex;
         align-items: center;
+        flex-wrap: wrap;
         column-gap: 16px;
-
-    }
-
-    & .wx-channel {
-        height: 150px;
+        row-gap: 8px;
     }
 }

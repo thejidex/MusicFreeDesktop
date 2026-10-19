@@ -14,13 +14,15 @@ import Empty from "@/renderer/components/Empty";
 import DownloadView from "./views/download-view";
 import ThemeView from "./views/theme-view";
 import RecentlyPlayView from "./views/recently-play-view";
+import useAppConfig from "@/hooks/useAppConfig";
 
 import "./index.scss";
 
 export default function MainPage() {
+    const hideSidebar = useAppConfig("normal.hideSidebar");
     return (
         <>
-            <SideBar></SideBar>
+            {!hideSidebar && <SideBar></SideBar>}
             <Routes>
                 <Route path="search/:query" element={<SearchView></SearchView>}></Route>
                 <Route
