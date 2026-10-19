@@ -118,6 +118,7 @@
     "total_music_num": "共 {{number}} 首"
   },
   "music_list_context_menu": {
+    "edit_music": "编辑歌曲信息",
     "next_play": "下一首播放",
     "add_to_my_sheets": "添加到歌单",
     "remove_from_sheet": "从歌单内删除",
@@ -193,6 +194,10 @@
     "hint_empty": "什么都没有呀~~~"
   },
   "modal": {
+    "edit_music_success": "歌曲信息已保存",
+    "edit_music_fail": "保存失败，请确认歌曲仍在歌单中后重试",
+    "edit_music_source_hint": "来源可自定义显示名称，播放仍使用歌曲原有音源。",
+    "edit_music_shared_hint": "此修改会同步到“我的歌单”中包含该歌曲的其他歌单。",
     "add_to_my_sheets": "添加到歌单",
     "total_music_num": "共 {{number}} 首",
     "create_local_sheet": "新建歌单",
@@ -308,6 +313,9 @@
       "volume-down": "降低音量",
       "toggle-desktop-lyric": "打开/关闭桌面歌词",
       "like/dislike": "喜欢/不喜欢当前歌曲",
+      "add-to-favorite": "收藏/取消收藏当前歌曲",
+      "focus-search": "搜索",
+      "edit-music": "编辑选中歌曲信息",
       "no_short_cut": "空",
       "toggle-main-window-visible": "显示/隐藏主窗口"
     },

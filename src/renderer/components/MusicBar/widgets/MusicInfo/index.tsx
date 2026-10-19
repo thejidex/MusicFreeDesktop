@@ -64,7 +64,7 @@ export default function MusicInfo() {
                                             fontSize: "0.9rem",
                                         }}
                                     >
-                                        {musicItem.platform}
+                                        {musicItem.$$displayPlatform ?? musicItem.platform}
                                     </Tag>
                                 </div>
                                 <div className="music-artist">

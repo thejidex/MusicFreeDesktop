@@ -31,6 +31,12 @@ export interface ICommand {
   VolumeDown: number;
   /** 切换喜爱状态 */
   ToggleFavorite: IMusic.IMusicItem | null;
+  /** 将当前歌曲添加到我喜欢 */
+  AddToFavorite: void;
+  /** 聚焦全局搜索框 */
+  FocusSearch: void;
+  /** 编辑歌单中选中的单首歌曲 */
+  EditSelectedMusic: void;
   /** 切换桌面歌词状态 */
   ToggleDesktopLyric: void;
   /** 同步音乐状态 */

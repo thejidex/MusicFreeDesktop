@@ -62,6 +62,18 @@ export async function removeRecentlyPlayList(musicItem: IMusic.IMusicItem) {
     }
 }
 
+/** 同步已编辑的歌曲信息，保留最近播放的原有顺序。 */
+export async function updateRecentlyPlayedMusicMetadata(musicItem: IMusic.IMusicItem) {
+    const playList = recentlyPlayListStore.getValue();
+    if (!playList.some((item) => isSameMedia(item, musicItem))) {
+        return;
+    }
+    await setRecentlyPlaylist(playList.map((item) => isSameMedia(item, musicItem)
+        ? { ...item, ...musicItem.$$metadataOverrides, $$metadataOverrides: musicItem.$$metadataOverrides }
+        : item,
+    ));
+}
+
 export async function clearRecentlyPlaylist() {
     setRecentlyPlaylist([]);
 }

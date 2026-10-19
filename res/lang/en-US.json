@@ -133,6 +133,7 @@
   },
 
   "music_list_context_menu": {
+    "edit_music": "Edit Song Information",
     "next_play": "Play Next",
     "add_to_my_sheets": "Add to Playlist",
     "remove_from_sheet": "Remove from Playlist",
@@ -214,6 +215,10 @@
     "hint_empty": "Nothing here~~~"
   },
   "modal": {
+    "edit_music_success": "Song information saved",
+    "edit_music_fail": "Could not save. Check that the song is still in the playlist and try again.",
+    "edit_music_source_hint": "Customize the displayed source name. Playback continues to use the original source.",
+    "edit_music_shared_hint": "Changes apply to every playlist in My Playlists that contains this song.",
     "add_to_my_sheets": "Add to Playlist",
     "total_music_num": "Total {{number}} songs",
     "create_local_sheet": "Create Playlist",
@@ -330,6 +335,9 @@
       "volume-down": "Volume Down",
       "toggle-desktop-lyric": "Toggle Desktop Lyric",
       "like/dislike": "Like/Dislike Current Song",
+      "add-to-favorite": "Toggle Favorite for Current Song",
+      "focus-search": "Search",
+      "edit-music": "Edit Selected Song",
       "no_short_cut": "None",
       "toggle-main-window-visible": "Show/Hide Main Window"
     },

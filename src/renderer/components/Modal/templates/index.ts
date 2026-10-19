@@ -2,6 +2,7 @@ import AddMusicToSheet from "./AddMusicToSheet";
 import AddNewSheet from "./AddNewSheet";
 import Base from "./Base";
 import ExitConfirm from "./ExitConfirm";
+import EditMusic from "./EditMusic";
 import ImportMusicSheet from "./ImportMusicSheet";
 import PluginSubscription from "./PluginSubscription";
 import Reconfirm from "./Reconfirm";
@@ -15,6 +16,7 @@ import WatchLocalDir from "./WatchLocalDir";
 export default {
     Base,
     ExitConfirm,
+    EditMusic,
     AddNewSheet,
     AddMusicToSheet,
     Sparkles,

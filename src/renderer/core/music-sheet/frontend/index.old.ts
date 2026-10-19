@@ -3,7 +3,10 @@ import * as backend from "../backend";
 import defaultSheet from "../common/default-sheet";
 import { useEffect, useRef, useState } from "react";
 import { RequestStateCode, localPluginName } from "@/common/constant";
-import { toMediaBase } from "@/common/media-util";
+import { isSameMedia, toMediaBase } from "@/common/media-util";
+import trackPlayer from "@/renderer/core/track-player";
+import { updateRecentlyPlayedMusicMetadata } from "@/renderer/core/recently-playlist";
+import messageBus from "@shared/message-bus/renderer/main";
 
 const musicSheetsStore = new Store<IMusic.IDBMusicSheetItem[]>([]);
 const starredSheetsStore = new Store<IMedia.IMediaBase[]>([]);
@@ -136,6 +139,26 @@ export async function setStarredMusicSheets(sheets: IMedia.IMediaBase[]) {
 }
 
 /**************************** 歌曲相关方法 ************************/
+
+/** 同一首歌在多个我的歌单中共享信息，保存后同步刷新所有相关歌单。 */
+export async function updateMusicMetadata(
+    musicItem: IMusic.IMusicItem,
+    sheetId: string,
+    metadata: IMusic.IMusicMetadata,
+) {
+    const updatedMusic = await backend.updateMusicMetadata(musicItem, sheetId, metadata);
+    trackPlayer.updateMusicMetadata(updatedMusic);
+    if (isSameMedia(trackPlayer.currentMusic, updatedMusic)) {
+        messageBus.syncAppState({ musicItem: trackPlayer.currentMusic });
+    }
+    await Promise.all([
+        updateRecentlyPlayedMusicMetadata(updatedMusic),
+        ...musicSheetsStore.getValue()
+            .filter((sheet) => sheet.musicList?.some((item) => isSameMedia(item, musicItem)))
+            .map((sheet) => refetchSheetDetail(sheet.id)),
+    ]);
+    return updatedMusic;
+}
 
 /**
  * 添加歌曲到歌单

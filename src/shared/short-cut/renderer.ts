@@ -17,8 +17,11 @@ const originalHotkeysFilter = hotkeys.filter;
 
 hotkeys.filter = (event) => {
     const target = event.target as HTMLElement;
-    if (target.dataset["capture"] === "true") {
+    if (target?.closest("[data-capture=true]")) {
         return true;
+    }
+    if (event.isComposing || target?.closest("[role=textbox]")) {
+        return false;
     }
     return originalHotkeysFilter(event);
 };
@@ -48,7 +51,11 @@ class ShortCut {
         this.unregisterLocalShortCut(key);
         const callback = (evt: KeyboardEvent) => {
             // Shortcut recording inputs must capture keys without controlling playback.
-            if ((evt.target as HTMLElement)?.dataset["capture"] === "true") {
+            if ((evt.target as HTMLElement)?.closest("[data-capture=true]") || evt.isComposing) {
+                return;
+            }
+            // Holding a key may adjust volume, but should only trigger other actions once.
+            if (evt.repeat && key !== "volume-up" && key !== "volume-down") {
                 return;
             }
             if (AppConfig.getConfig("shortCut.enableLocal")) {

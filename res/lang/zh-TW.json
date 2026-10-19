@@ -133,6 +133,7 @@
   },
 
   "music_list_context_menu": {
+    "edit_music": "編輯歌曲資訊",
     "next_play": "下一首播放",
     "add_to_my_sheets": "添加到我的歌單",
     "remove_from_sheet": "從歌單移除",
@@ -214,6 +215,10 @@
     "hint_empty": "這裡什麼都沒有~~~"
   },
   "modal": {
+    "edit_music_success": "歌曲資訊已保存",
+    "edit_music_fail": "保存失敗，請確認歌曲仍在歌單中後重試",
+    "edit_music_source_hint": "來源可自訂顯示名稱，播放仍使用歌曲原有音源。",
+    "edit_music_shared_hint": "此修改會同步到「我的歌單」中包含該歌曲的其他歌單。",
     "add_to_my_sheets": "添加到我的歌單",
     "total_music_num": "共 {{number}} 首歌曲",
     "create_local_sheet": "創建歌單",
@@ -330,6 +335,9 @@
       "volume-down": "音量減少",
       "toggle-desktop-lyric": "開啟/關閉桌面歌詞",
       "like/dislike": "喜歡/不喜歡當前歌曲",
+      "add-to-favorite": "收藏/取消收藏目前歌曲",
+      "focus-search": "搜尋",
+      "edit-music": "編輯選取歌曲資訊",
       "no_short_cut": "無",
       "toggle-main-window-visible": "顯示/隱藏主窗口"
     },

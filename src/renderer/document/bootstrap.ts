@@ -17,6 +17,7 @@ import throttle from "lodash.throttle";
 import { IAppState } from "@shared/message-bus/type";
 import MusicDetail from "@renderer/components/MusicDetail";
 import shortCut from "@shared/short-cut/renderer";
+import { getMediaPrimaryKey } from "@/common/media-util";
 
 
 setAutoFreeze(false);
@@ -160,12 +161,45 @@ function setupCommandAndEvents() {
         trackPlayer.setVolume(Math.max(0, trackPlayer.volume - val));
     });
 
+    const favoriteToggleTasks = new Map<string, Promise<void>>();
     messageBus.onCommand("ToggleFavorite", async (item) => {
         const realItem = item || trackPlayer.currentMusic;
-        if (MusicSheet.frontend.isFavoriteMusic(realItem)) {
-            MusicSheet.frontend.removeMusicFromFavorite(realItem);
-        } else {
-            MusicSheet.frontend.addMusicToFavorite(realItem);
+        if (!realItem) {
+            return;
+        }
+        // Serialize rapid presses for the same song so each press changes its state.
+        const key = getMediaPrimaryKey(realItem);
+        const previous = favoriteToggleTasks.get(key) ?? Promise.resolve();
+        const task = previous.catch(() => undefined).then(async () => {
+            if (MusicSheet.frontend.isFavoriteMusic(realItem)) {
+                await MusicSheet.frontend.removeMusicFromFavorite(realItem);
+            } else {
+                await MusicSheet.frontend.addMusicToFavorite(realItem);
+            }
+        });
+        favoriteToggleTasks.set(key, task);
+        try {
+            await task;
+        } finally {
+            if (favoriteToggleTasks.get(key) === task) {
+                favoriteToggleTasks.delete(key);
+            }
+        }
+    });
+
+    messageBus.onCommand("AddToFavorite", async () => {
+        const musicItem = trackPlayer.currentMusic;
+        if (musicItem && !MusicSheet.frontend.isFavoriteMusic(musicItem)) {
+            await MusicSheet.frontend.addMusicToFavorite(musicItem);
+        }
+    });
+
+    messageBus.onCommand("FocusSearch", () => {
+        MusicDetail.hide();
+        const searchInput = document.getElementById("header-search-input");
+        if (searchInput instanceof HTMLInputElement) {
+            searchInput.focus();
+            searchInput.select();
         }
     });
 

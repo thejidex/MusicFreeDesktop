@@ -43,6 +43,10 @@ declare namespace IMusic {
     duration?: number;
     /** 专辑名 */
     album?: string;
+    /** 用户自定义的来源名称，仅用于展示，保留 platform 作为插件和数据库标识 */
+    $$displayPlatform?: string;
+    /** 用户编辑的展示信息，优先于插件自动补全的信息 */
+    $$metadataOverrides?: Pick<IMusicItem, "title" | "artist" | "album" | "$$displayPlatform">;
     /** 专辑封面图 */
     artwork?: string;
     /** 默认音源 */
@@ -54,6 +58,14 @@ declare namespace IMusic {
     rawLrc?: string;
     // 其他
     [k: string | number | symbol]: any;
+  }
+
+  /** 我的歌单中可编辑的展示信息 */
+  interface IMusicMetadata {
+    title: string;
+    artist: string;
+    album: string;
+    displayPlatform: string;
   }
 
   // 音乐的内部数据

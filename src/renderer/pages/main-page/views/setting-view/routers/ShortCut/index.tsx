@@ -5,7 +5,6 @@ import { useEffect, useRef, useState } from "react";
 import hotkeys from "hotkeys-js";
 import { useTranslation } from "react-i18next";
 import useAppConfig from "@/hooks/useAppConfig";
-import { IAppConfig } from "@/types/app-config";
 import shortCut from "@shared/short-cut/renderer";
 import { shortCutKeys } from "@/common/constant";
 import SvgAsset from "@renderer/components/SvgAsset";
@@ -29,9 +28,6 @@ export default function ShortCut() {
     );
 }
 
-type IShortCutKeys = keyof IAppConfig["shortCut.shortcuts"];
-
-
 function ShortCutTable() {
     const { t } = useTranslation();
 
@@ -51,7 +47,7 @@ function ShortCutTable() {
                     {t("settings.short_cut.enable_global")}
                 </div>
             </div>
-            {shortCutKeys.map((it: string) => (
+            {shortCutKeys.map((it) => (
                 <div className="setting-view--short-cut-table-row" key={it}>
                     <div className="short-cut-cell">{t(`settings.short_cut.${it}`)}</div>
                     <div className="short-cut-cell">
@@ -59,24 +55,25 @@ function ShortCutTable() {
                             enabled={enableLocalShortCut}
                             value={shortCuts?.[it]?.local}
                             onChange={(val) => {
-                                shortCut.registerLocalShortCut(it as IShortCutKeys, val);
+                                shortCut.registerLocalShortCut(it, val);
                             }}
                             showClearButton
                             onClear={() => {
-                                shortCut.unregisterLocalShortCut(it as IShortCutKeys);
+                                shortCut.unregisterLocalShortCut(it);
                             }}
                         ></ShortCutItem>
                     </div>
                     <div className="short-cut-cell">
                         <ShortCutItem
+                            isGlobal
                             enabled={enableGlobalShortCut}
                             value={shortCuts?.[it]?.global}
                             onChange={(val) => {
-                                shortCut.registerGlobalShortCut(it as IShortCutKeys, val);
+                                shortCut.registerGlobalShortCut(it, val);
                             }}
                             showClearButton
                             onClear={() => {
-                                shortCut.unregisterGlobalShortCut(it as IShortCutKeys);
+                                shortCut.unregisterGlobalShortCut(it);
                             }}
                         ></ShortCutItem>
                     </div>

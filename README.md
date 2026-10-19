@@ -1,106 +1,139 @@
-# MusicFree Desktop · thejidex 个人改进版
+# MusicFree Desktop · thejidex 改进版
 
 [![GitHub Release](https://img.shields.io/github/v/release/thejidex/MusicFreeDesktop)](https://github.com/thejidex/MusicFreeDesktop/releases)
-[![GitHub Downloads](https://img.shields.io/github/downloads/thejidex/MusicFreeDesktop/total)](https://github.com/thejidex/MusicFreeDesktop/releases)
 [![License](https://img.shields.io/badge/license-AGPL--3.0-blue)](./LICENSE)
 
-基于 [猫头猫（maotoumao）](https://github.com/maotoumao) 开发的 [MusicFreeDesktop](https://github.com/maotoumao/MusicFreeDesktop) 的个人改进版本，由 [thejidex](https://github.com/thejidex) 整理维护。感谢原作者及项目贡献者提供的音乐播放器。
+基于 [猫头猫（maotoumao）的 MusicFreeDesktop](https://github.com/maotoumao/MusicFreeDesktop) 的个人 Fork，由 [thejidex](https://github.com/thejidex) 维护。保留原项目的插件化播放、歌单和主题功能，改进日常播放与歌曲管理体验。本仓库并非原作者的官方发行版。
 
-本分支基于上游 **master / 0.0.8**，主要改善播放控制、B 站合集播放、网络请求和歌词体验。这是个人 Fork，**并非原作者的官方发布**；原项目及其后续开发进度请查看上游仓库。
+**当前源码版本：v1.1.1**，基于 MusicFreeDesktop 0.0.8。便携包面向 **Windows x64**，已在 Windows 11 验证；其他平台源码保留，但本版本未验证其构建和运行。
 
-**[下载改进版](https://github.com/thejidex/MusicFreeDesktop/releases) · [查看原仓库](https://github.com/maotoumao/MusicFreeDesktop) · [反馈本版本问题](https://github.com/thejidex/MusicFreeDesktop/issues) · [贡献方向讨论](https://github.com/maotoumao/MusicFreeDesktop/issues/446)**
+[下载发布版](https://github.com/thejidex/MusicFreeDesktop/releases) · [反馈问题](https://github.com/thejidex/MusicFreeDesktop/issues) · [更新记录](./docs/changelog.md) · [上游仓库](https://github.com/maotoumao/MusicFreeDesktop)
 
-修改说明：本版本由 thejidex 修改并整理，六项功能改进于 2026 年 10 月 12 日发布；同日补充第三方版权文件与打包说明。详细记录见 Git 提交历史。
+## 本次更新
 
-## 六项改进
+以下变化相对于本仓库此前的 [master 提交 68815fa](https://github.com/thejidex/MusicFreeDesktop/commit/68815fa8c662a0cdd7201a4835adc44b166f3caf)（2026-10-14，软件版本 0.0.8）。
 
-| 改进 | 本版本的行为 |
+| 功能 | v1.1.1 的行为 |
 | --- | --- |
-| 进度条 | 调整细轨道、悬停和拖动状态，改善暂停标记、点击定位与拖动定位。 |
-| 默认本地快捷键 | 空格播放/暂停，左方向键切上一首，右方向键切下一首；保留已有自定义配置，录制快捷键时避免误触发播放。 |
-| B 站多分集音乐合集 | 在插件提供完整分集信息时连续播放后续分集，显示合集累计时长，支持跨分集定位。 |
-| 搜索与网络请求 | 改善核心插件请求层的 HTTP/HTTPS 系统代理处理，保留手动代理优先级，缓解连接或代理配置导致的搜索失败。 |
-| 歌词与桌面歌词 | 歌词缺失时提供可关闭的匹配功能，改善空歌词与切歌时的显示；桌面歌词工具栏增加一键左右居中，保持上下位置、窗口大小和字体大小，并保存位置。 |
-| 简体歌词显示 | 简体中文界面下，主歌词与桌面歌词共用繁转简显示；保留原始歌词和时间戳，切换界面语言可以恢复原文。 |
+| 快速搜索 | `Ctrl+/` 聚焦顶部搜索框；在歌曲详情页使用时会返回主界面。 |
+| 收藏快捷键 | `Z` 切换**当前播放歌曲**的“我喜欢”状态，再按一次取消收藏。长按只执行一次，快速多次按键依次处理。 |
+| 编辑歌曲信息 | 在“我的歌单”中右键单首歌曲，选择“编辑歌曲信息”，可修改歌名、作者、专辑和显示的来源。 |
+| 编辑快捷键 | 在“我的歌单”中**左键选中一首歌，再按 `Ctrl+Z`** 打开编辑窗口。选中的歌可以不是正在播放的歌；多选时不触发。在输入框中仍为正常撤销。 |
+| 隐藏歌曲列 | 右上角齿轮 → 常规 → 歌曲列表隐藏列，可隐藏专辑、时长或来源，立即生效；隐藏来源也作用于右侧播放列表。 |
+| 播放列表序号 | 右侧播放队列显示从 1 开始的歌曲序号，随队列顺序更新。 |
+| 应用图标 | 应用、窗口、托盘和界面标志统一使用银色苹果图标。 |
+| 发布方式 | 统一生成 Windows x64 自动解压 EXE、ZIP 和 SHA-256 校验文件；构建过程排除个人数据。 |
 
-这些改动已在 Windows 本地进行验证；尚未适配上游重构后的 dev。向上游贡献的范围和实现方式将按维护者的反馈另行整理。
+**编辑说明：** 编辑内容保存在本机，同一首歌在其他自建歌单中的信息也会更新，播放队列及最近播放同步显示。修改“来源”只改变显示名称，不改变插件、歌曲 ID 或实际播放音源，也不修改原始音频文件的标签。插件补全信息时会保留手动编辑的字段。
+
+来源列隐藏在旧版已经存在；本次增加专辑选项，并修复设置立即生效及播放队列的来源显示。快捷键可在“设置 → 快捷键”中调整，已有自定义绑定会保留。
+
+## 此前版本已具备的改进
+
+这些功能延续自本仓库之前的 GitHub 版本：
+
+- 改善进度条的显示、点击定位和拖动定位。
+- 默认空格播放/暂停，左右方向键切换上一首、下一首；录制快捷键时避免误触发。
+- 插件提供完整分集信息时，支持 B 站合集连续播放、累计时长和跨分集定位。
+- 改善插件请求层的 HTTP/HTTPS 系统代理处理，保留手动代理优先级。
+- 歌词缺失时自动匹配歌词，可在设置中关闭；桌面歌词支持一键左右居中。
+- 简体中文界面下，主歌词与桌面歌词显示繁转简结果，保留原始歌词和时间戳。
 
 ## 下载与运行
 
-打开本仓库的 [Releases](https://github.com/thejidex/MusicFreeDesktop/releases)，在相应版本的 **Assets** 中下载：
+在 [Releases](https://github.com/thejidex/MusicFreeDesktop/releases) 对应版本的 **Assets** 中下载，实际已发布的版本以该页面为准：
 
-- `MusicFree-<发布标签>-win-x64.exe`：推荐。双击后自动解压并启动，无需另外安装 MusicFree。
-- `MusicFree-<发布标签>-win-x64.zip`：手动解压整个压缩包，再运行其中的 `MusicFree.exe`。
+- `MusicFree-v1.1.1-win-x64.exe`：双击自动解压并启动，无需安装。
+- `MusicFree-v1.1.1-win-x64.zip`：完整解压后运行其中的 `MusicFree.exe`。
+- `SHA256SUMS-v1.1.1.txt`：用于核对下载文件的 SHA-256。
 
-`Source code (zip)` 和 `Source code (tar.gz)` 是源码，需要构建后使用，不是可直接运行的程序。实际可下载的版本和附件以 Releases 页面为准。
+将 EXE 放在普通的可写文件夹。首次运行会在旁边生成 `MusicFree-v1.1.1` 文件夹，以后也可直接运行其中的 `MusicFree.exe`。**请保留整个程序文件夹**，其中的 `portable` 保存歌单、插件、主题、设置、缓存和日志。歌曲默认下载到 `portable/downloads`，可在设置中更改。
 
-当前发布准备面向 **Windows x64**，在 Windows 11 上验证。原项目支持其他平台，但本 Fork 尚未提供经过验证的 macOS、Linux 或 Windows ARM64 程序包。
+发布包不预装第三方音源插件，也不包含个人歌单、账号或配置。安装插件后再搜索和播放，可参考 [MusicFree 文档](https://musicfree.catcat.work/) 与 [插件示例](https://github.com/maotoumao/MusicFreePlugins)。仓库随附供下载者使用的主题包，下载仓库后可按下方说明安装主题。
 
-### 自动解压 EXE
+GitHub 自动生成的 `Source code` 附件是源码，需要构建后才能运行。分享程序时请发送原始 EXE 或 ZIP，避免分享包含自己数据的已使用程序目录。
 
-1. 将下载的 EXE 放在有足够空间的可写文件夹，例如 D 盘的普通文件夹。
-2. 首次双击会在旁边生成 `MusicFree-<发布标签>` 程序文件夹，然后启动。
-3. 以后可双击原 EXE，或进入生成的文件夹运行 `MusicFree.exe`。
-4. 在程序中自行安装音源插件，再进行搜索和播放。
+### 使用仓库提供的主题
 
-应用配置、歌单、搜索记录、插件、主题、缓存和日志保存在生成的程序文件夹内的 `portable` 目录。便携包首次启动的歌曲下载目录为 `portable/downloads`，也可在设置中改到其他位置。需要移动整个程序时，请一起移动完整程序文件夹。
+[MusicFree主题](./MusicFree主题) 是供下载者使用的仓库资源，包含 **8 款静态主题和 3 款动态主题**：
 
-发布包从当前源码重新构建，**不包含维护者的个人歌单、搜索历史、主题包、插件、登录信息和配置**。再次分享时请发送下载到的原始 EXE 或 ZIP；已经使用过的程序文件夹中会有你自己的数据。
+- [静态主题](./MusicFree主题/静态主题)：下载所需的 `.mftheme` 文件。
+- [动态主题](./MusicFree主题/动态主题)：下载所需的 `.mftheme` 文件，包含动态背景。
 
-不同发布标签会生成不同程序文件夹，不会自动覆盖旧版本或迁移其数据。便携版首次启动关闭官方更新检查；本 Fork 的更新请从本仓库 Releases 获取。
+在 MusicFree 的主题包页面安装本地 `.mftheme` 文件后选择应用，也可将文件拖入播放器；主题包无需解压。主题包格式沿用 [上游主题包](https://github.com/maotoumao/MusicFreeThemePacks)。
 
-## 使用说明与限制
+### 更新与沿用数据
 
-- MusicFree 是插件化播放器，本发布包不预装第三方音源插件。插件安装和开发请参考 [原项目文档](https://musicfree.catcat.work/) 与 [示例插件仓库](https://github.com/maotoumao/MusicFreePlugins)。
-- 系统代理优化针对应用的连接和代理处理，不保证所有第三方插件接口都正常。快手插件在当前验证中仍返回空结果。
-- B 站合集连续播放需要插件返回完整且有效的分集信息；明确指定单个分集的歌曲仍按单分集播放。
-- 可靠歌词无法匹配时仍可能没有歌词。自动匹配缺失歌词默认启用，可在歌词设置中关闭。
-- **网络行为**：插件搜索、播放和获取歌词需要访问相应服务；自动匹配缺失歌词时，会将歌曲标题、歌手等匹配信息发送给网易云音乐或 LRCLIB。匹配结果缓存到本地。
-- **桌面歌词左右居中**：启用桌面歌词并解锁后，在悬停工具栏点击“左右居中”；以窗口当前所在显示器的工作区为准，只执行一次位置调整。
-- 快捷键属于应用内的本地快捷键；已有配置不会被强制覆盖，可在快捷键设置中查看和调整。
+本 Fork 的更新请从本仓库 Releases 获取。不同版本会生成独立程序目录，不会自动覆盖旧版本或迁移数据。
 
-## 从源码启动
+1. 退出新旧程序，并分别备份完整程序目录。
+2. 解压新版，将旧版的整个 `portable` 复制到新版目录，替换同名目录。
+3. 启动新版检查歌单和设置；如果主题或下载目录使用绝对路径，需在设置中重新选择。
 
-安装 Node.js 和 npm，在仓库根目录执行：
+请勿在程序运行时复制数据。上面的方式适用于已有 `portable` 目录的便携版；其他安装方式应先使用应用提供的歌单导出/备份功能。
+
+## 使用限制
+
+- 搜索、播放和歌词获取依赖相应服务及插件，代理优化不保证第三方接口始终可用。
+- B 站合集功能要求插件返回完整有效的分集信息；明确指定单分集的歌曲仍按单分集播放。
+- 缺失歌词自动匹配默认启用，会向网易云音乐或 LRCLIB 查询歌曲标题、歌手等信息，结果缓存在本机；可在歌词设置中关闭。
+- 桌面歌词解锁后，在悬停工具栏选择“左右居中”，只调整当前显示器内的水平位置。
+- 本地快捷键在应用内生效。需要系统级快捷键时，请在快捷键设置中另行配置。
+
+## 从源码开发
+
+安装 Node.js 和 npm，推荐 Node.js 22 或 24。在仓库根目录执行：
 
 ```bash
 npm ci
 npm start
 ```
 
-## 构建 Windows 便携包
-
-在 Windows x64 环境下执行：
+检查类型及本次功能的回归用例：
 
 ```bash
-node scripts/build-portable.cjs --tag v0.0.8-thejidex.1
+npx tsc --noEmit
+npm run test:shortcuts
+npm run test:library
+npm run test:playback-metadata
 ```
 
-脚本调用 Electron Forge 构建当前源码，再生成自动解压 EXE、ZIP 和 SHA-256 校验文件。默认输出位于 `out/releases/<发布标签>`；可通过 `--output` 指定其他目录。
+`test:library` 在隐藏的 Electron 窗口中使用 `out` 下的独立数据库，不会读取日常使用的歌单。
+
+## 构建和发布
+
+在 **Windows x64** 环境安装依赖后执行：
 
 ```bash
-node scripts/build-portable.cjs --tag v0.0.8-thejidex.1 --output D:\CodexTemp\MusicFree-release
+npm run build:release
 ```
 
-自动解压启动器的源码位于 [scripts/portable/Launcher.cs](./scripts/portable/Launcher.cs)，便携数据路径初始化位于 [scripts/portable/portable-init.cjs](./scripts/portable/portable-init.cjs)。构建需要 Windows 的 .NET Framework C# 编译器；原生依赖如果需要重新编译，请按构建报错安装相应工具。
+构建脚本从当前源码生成程序，默认标签取自 `package.json`，当前为 `v1.1.1`。最终 EXE、ZIP 和校验文件位于根目录 `release/`；构建清单及临时文件位于 `out/` 和 `.webpack/`，避免混入交付目录。自动解压启动器使用 Windows 自带的 .NET Framework C# 编译器；原生依赖如需编译，还需对应的 C++ 构建工具。
 
-发布时请将标签指向包含对应代码和打包脚本的提交，以便下载者找到对应源码。个人数据目录和构建输出不应提交到 Git。
+同名发布文件存在时脚本会停止，以避免覆盖；更新版本时同步修改 `package.json`、`package-lock.json` 和 `release/version.json`。清理旧包前先检查是否仍需保留，尤其不要删除使用中的 `portable` 数据。
 
-## 主题与截图
+仓库中的手动 **Build** 工作流使用相同的构建命令生成 Windows 包，**Release** 工作流根据指定的构建运行创建草稿发布。发布标签必须指向生成该程序的源码提交。此版本的工作流尚需在 GitHub Actions 上实际运行验证。
 
-主题包格式沿用原项目，可参考 [上游 README](https://github.com/maotoumao/MusicFreeDesktop#主题包) 和 [主题包示例](https://github.com/maotoumao/MusicFreeThemePacks)。
+**向 GitHub 提交源码，EXE、ZIP 和校验文件作为 Releases 附件上传。** 这些二进制文件、依赖、构建缓存、便携数据及本机工作记录均由 `.gitignore` 排除。
 
-下面是原项目的界面示例，具体界面以本版本实际运行结果为准：
+## 项目结构
 
-![MusicFree 原项目界面示例](./.imgs/screenshot.png)
+```text
+src/                    应用源码
+res/                    图标、语言等运行资源
+config/                 Forge、Webpack、ESLint 配置
+docs/                   更新记录和第三方版权说明
+MusicFree主题/          8 款静态主题、3 款动态主题（.mftheme）
+scripts/build/          Windows 打包、启动器和版权收集
+scripts/tests/          回归检查
+release/                最新 EXE、ZIP、校验文件及版本说明
+.github/                手动构建及草稿发布工作流
+```
 
-## 原作者、出处与许可证
+根目录只保留 README、许可证和 npm、TypeScript、Git 所需的入口文件。日常开发、检查和打包命令均从根目录执行；构建输出与个人便携数据不提交到 Git。
 
-- 原作者：[猫头猫 / maotoumao](https://github.com/maotoumao)。
-- 原桌面端仓库：[maotoumao/MusicFreeDesktop](https://github.com/maotoumao/MusicFreeDesktop)。
-- MusicFree 项目：[maotoumao/MusicFree](https://github.com/maotoumao/MusicFree)。
-- 本 Fork：[thejidex/MusicFreeDesktop](https://github.com/thejidex/MusicFreeDesktop)。
+## 出处与许可证
 
-本项目保留原仓库的 **GNU Affero General Public License v3**，完整条款见 [LICENSE](./LICENSE)。请遵守许可证及原项目使用说明，并保留原作者与代码出处。发布包保留 MusicFree、Electron、Chromium 的许可证，并将收集到的运行依赖版权文件放在 third-party-licenses 目录；见 [第三方声明](./third-party-licenses/README.md)。
+原作者：[猫头猫 / maotoumao](https://github.com/maotoumao)。本 Fork 保留原项目的 **GNU Affero General Public License v3**，完整条款见 [LICENSE](./LICENSE)。修改与再分发时请保留作者、源码出处及许可证，并按其条款提供对应源码。
 
-如果这个项目对你有帮助，欢迎先给 [原项目](https://github.com/maotoumao/MusicFreeDesktop) 点 Star，支持原作者与贡献者。
+发布包保留 MusicFree、Electron、Chromium 及运行依赖的版权文件，收集方式与补充声明见 [第三方版权说明](./docs/third-party-licenses/README.md)。银色苹果图标为本 Fork 的自定义资源，不代表 Apple 或原作者的官方发行或背书；该图标的权利归相应权利人所有。

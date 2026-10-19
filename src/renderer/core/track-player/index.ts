@@ -87,6 +87,8 @@ class TrackPlayer {
             artist: currentMusic.artist,
             id: currentMusic.id,
             album: currentMusic.album,
+            $$displayPlatform: currentMusic.$$displayPlatform,
+            $$metadataOverrides: currentMusic.$$metadataOverrides,
             artwork: currentMusic.artwork,
         } as IMusic.IMusicItem;
     }
@@ -369,9 +371,12 @@ class TrackPlayer {
                 return;
             }
 
+            const metadataOverrides = this.currentMusic?.$$metadataOverrides ?? nextMusicItem.$$metadataOverrides;
             this.setCurrentMusic({
                 ...nextMusicItem,
                 ...musicInfo,
+                ...metadataOverrides,
+                $$metadataOverrides: metadataOverrides,
                 platform: nextMusicItem.platform,
                 id: nextMusicItem.id,
             });
@@ -611,6 +616,29 @@ class TrackPlayer {
             await this.audioController.setSinkId(deviceId ?? "");
         } catch (e) {
             logger.logError("设置音频输出设备失败", e);
+        }
+    }
+
+    /** 更新展示信息，不重启播放，不改变队列顺序和插件音源标识。 */
+    public updateMusicMetadata(musicItem: IMusic.IMusicItem) {
+        const overrides = musicItem.$$metadataOverrides;
+        if (!overrides) {
+            return;
+        }
+        const applyMetadata = (item: IMusic.IMusicItem) => ({
+            ...item,
+            ...overrides,
+            $$metadataOverrides: overrides,
+        });
+        if (this.musicQueue.some((item) => isSameMedia(item, musicItem))) {
+            this.setMusicQueue(this.musicQueue.map((item) =>
+                isSameMedia(item, musicItem) ? applyMetadata(item) : item,
+            ));
+        }
+        if (this.isCurrentMusic(musicItem)) {
+            const updatedCurrentMusic = applyMetadata(this.currentMusic);
+            this.setCurrentMusic(updatedCurrentMusic);
+            setUserPreference("currentMusic", updatedCurrentMusic);
         }
     }
 

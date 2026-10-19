@@ -1,98 +1,86 @@
 name: Release
 
 on:
-    workflow_dispatch:
-        inputs:
-            run_id:
-                description: 'Build workflow run ID to download artifacts from'
-                required: true
-                type: string
-            release_notes:
-                description: 'Release notes (optional, overrides release/version.json changeLog)'
-                required: false
-                type: string
+  workflow_dispatch:
+    inputs:
+      run_id:
+        description: Successful Build workflow run ID
+        required: true
+        type: string
+      release_notes:
+        description: Optional notes replacing release/version.json changeLog
+        required: false
+        type: string
 
 permissions:
-    contents: write
+  actions: read
+  contents: write
 
 jobs:
-    release:
-        runs-on: ubuntu-latest
-        steps:
-            - uses: actions/checkout@v4
-
-            - name: Download all artifacts from build run
-              env:
-                  GH_TOKEN: ${{ github.token }}
-              run: |
-                  mkdir -p artifacts
-                  gh run download ${{ inputs.run_id }} --dir artifacts
-
-            - name: Read build metadata
-              id: meta
-              run: |
-                  META_FILE="artifacts/build-meta/build-meta.json"
-                  if [ ! -f "$META_FILE" ]; then
-                    echo "::error::build-meta.json not found. Make sure the build workflow completed successfully."
-                    exit 1
-                  fi
-                  VERSION=$(jq -r '.version' "$META_FILE")
-                  BRANCH=$(jq -r '.branch' "$META_FILE")
-                  COMMIT=$(jq -r '.commit' "$META_FILE")
-                  echo "version=$VERSION" >> $GITHUB_OUTPUT
-                  echo "branch=$BRANCH" >> $GITHUB_OUTPUT
-                  echo "commit=$COMMIT" >> $GITHUB_OUTPUT
-                  echo "tag=v$VERSION" >> $GITHUB_OUTPUT
-                  # Auto-detect prerelease from branch name
-                  if [[ "$BRANCH" == *"dev"* ]] || [[ "$BRANCH" == *"beta"* ]] || [[ "$BRANCH" == *"alpha"* ]]; then
-                    echo "prerelease=true" >> $GITHUB_OUTPUT
-                  else
-                    echo "prerelease=false" >> $GITHUB_OUTPUT
-                  fi
-
-            - name: Generate release notes
-              id: notes
-              env:
-                  RELEASE_NOTES_INPUT: ${{ inputs.release_notes }}
-              run: |
-                  if [ -n "$RELEASE_NOTES_INPUT" ]; then
-                    printf '%s\n' "$RELEASE_NOTES_INPUT" > release-notes.md
-                  else
-                    jq -r '.changeLog | join("\n")' release/version.json > release-notes.md
-                  fi
-                  echo "=== Release notes ==="
-                  cat release-notes.md
-
-            - name: Collect release assets
-              run: |
-                  mkdir -p release-assets
-                  find artifacts -type f \( -name "*.exe" -o -name "*.zip" -o -name "*.dmg" -o -name "*.deb" -o -name "*.rpm" \) -exec cp {} release-assets/ \;
-                  echo "=== Release assets ==="
-                  ls -lh release-assets/
-
-            - name: Create tag
-              env:
-                  GH_TOKEN: ${{ github.token }}
-              run: |
-                  TAG="${{ steps.meta.outputs.tag }}"
-                  COMMIT="${{ steps.meta.outputs.commit }}"
-                  # Check if tag already exists
-                  if gh api "repos/${{ github.repository }}/git/refs/tags/${TAG}" &>/dev/null; then
-                    echo "::error::Tag ${TAG} already exists. Aborting."
-                    exit 1
-                  fi
-                  gh api "repos/${{ github.repository }}/git/refs" \
-                    -X POST \
-                    -f ref="refs/tags/${TAG}" \
-                    -f sha="${COMMIT}"
-
-            - name: Create GitHub Draft Release
-              env:
-                  GH_TOKEN: ${{ github.token }}
-              run: |
-                  gh release create "${{ steps.meta.outputs.tag }}" \
-                    --title "MusicFree ${{ steps.meta.outputs.version }}" \
-                    --notes-file release-notes.md \
-                    --draft \
-                    ${{ steps.meta.outputs.prerelease == 'true' && '--prerelease' || '' }} \
-                    release-assets/*
+  release:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+    steps:
+      - name: Download a successful Build run
+        env:
+          BUILD_RUN_ID: ${{ inputs.run_id }}
+        run: |
+          [[ "$BUILD_RUN_ID" =~ ^[0-9]+$ ]] || exit 1
+          gh run view "$BUILD_RUN_ID" --json name,conclusion > run.json
+          jq -e '.name == "Build" and .conclusion == "success"' run.json
+          gh run download "$BUILD_RUN_ID" --dir artifacts
+      - name: Read build metadata
+        id: meta
+        run: |
+          META_FILE=artifacts/build-meta/build-meta.json
+          VERSION=$(jq -er '.version' "$META_FILE")
+          TAG=$(jq -er '.tag' "$META_FILE")
+          COMMIT=$(jq -er '.commit' "$META_FILE")
+          [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[A-Za-z0-9.-]+)?$ ]] || exit 1
+          [[ "$TAG" =~ ^v[0-9][A-Za-z0-9._-]*$ ]] || exit 1
+          [[ "$COMMIT" =~ ^[0-9a-f]{40}$ ]] || exit 1
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "commit=$COMMIT" >> "$GITHUB_OUTPUT"
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.meta.outputs.commit }}
+          path: source
+      - name: Collect and verify release assets
+        env:
+          RELEASE_TAG: ${{ steps.meta.outputs.tag }}
+        run: |
+          mkdir release-assets
+          cp "artifacts/MusicFree-windows-x64/MusicFree-$RELEASE_TAG-win-x64.exe" release-assets/
+          cp "artifacts/MusicFree-windows-x64/MusicFree-$RELEASE_TAG-win-x64.zip" release-assets/
+          cp "artifacts/MusicFree-windows-x64/SHA256SUMS-$RELEASE_TAG.txt" release-assets/
+          cd release-assets
+          sha256sum --check "SHA256SUMS-$RELEASE_TAG.txt"
+      - name: Generate release notes from the built revision
+        env:
+          NOTES_INPUT: ${{ inputs.release_notes }}
+          RELEASE_VERSION: ${{ steps.meta.outputs.version }}
+        run: |
+          jq -e --arg v "$RELEASE_VERSION" '.version == $v' source/release/version.json
+          if [ -n "$NOTES_INPUT" ]; then
+            printf '%s\n' "$NOTES_INPUT" > release-notes.md
+          else
+            jq -r '.changeLog | join("\n")' source/release/version.json > release-notes.md
+          fi
+      - name: Create draft release
+        env:
+          RELEASE_TAG: ${{ steps.meta.outputs.tag }}
+          RELEASE_VERSION: ${{ steps.meta.outputs.version }}
+          SOURCE_COMMIT: ${{ steps.meta.outputs.commit }}
+        run: |
+          if gh api "repos/$GH_REPO/git/ref/tags/$RELEASE_TAG" >/dev/null 2>&1; then
+            echo "::error::Tag already exists: $RELEASE_TAG"
+            exit 1
+          fi
+          flags=()
+          if [[ "$RELEASE_VERSION" == *-* ]]; then flags+=(--prerelease); fi
+          gh release create "$RELEASE_TAG" --target "$SOURCE_COMMIT" \
+            --title "MusicFree $RELEASE_VERSION" --notes-file release-notes.md \
+            --draft "${flags[@]}" release-assets/*

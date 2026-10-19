@@ -1,0 +1,55 @@
+.modal--edit-music {
+    width: 460px;
+    max-width: calc(100vw - 32px);
+    max-height: calc(100vh - 32px);
+    overflow-y: auto;
+    border-radius: 12px;
+
+    .edit-music-fields {
+        padding: 18px 20px 0;
+
+        label {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin-bottom: 14px;
+        }
+
+        input {
+            width: 100%;
+        }
+
+        p {
+            margin: 8px 0;
+            opacity: 0.7;
+            line-height: 1.6;
+        }
+    }
+
+    .edit-music-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+        padding: 16px 20px 20px;
+
+        button {
+            border: 1px solid var(--dividerColor);
+            border-radius: 8px;
+            padding: 8px 18px;
+            background: var(--placeholderColor);
+            color: var(--textColor);
+            cursor: pointer;
+
+            &.primary {
+                background: var(--primaryColor);
+                border-color: var(--primaryColor);
+                color: white;
+            }
+
+            &:disabled {
+                opacity: 0.5;
+                cursor: default;
+            }
+        }
+    }
+}

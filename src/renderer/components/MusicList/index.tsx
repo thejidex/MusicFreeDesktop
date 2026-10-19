@@ -35,6 +35,8 @@ import { i18n } from "@/shared/i18n/renderer";
 import isLocalMusic from "@/renderer/utils/is-local-music";
 import AppConfig from "@shared/app-config/renderer";
 import { shellUtil } from "@shared/utils/renderer";
+import useAppConfig from "@/hooks/useAppConfig";
+import messageBus from "@shared/message-bus/renderer/main";
 
 interface IMusicListProps {
     /** 展示的播放列表 */
@@ -131,7 +133,8 @@ const columnDef: ColumnDef<IMusic.IMusicItem>[] = [
         // @ts-ignore
         fr: 1,
     }),
-    columnHelper.accessor("platform", {
+    columnHelper.accessor((musicItem) => musicItem.$$displayPlatform ?? musicItem.platform, {
+        id: "platform",
         header: () => i18n.t("media.media_platform"),
         size: 100,
         minSize: 80,
@@ -199,6 +202,19 @@ export function showMusicContextMenu(
             show: !!sheetType && sheetType !== "play-list",
             onClick() {
                 MusicSheet.frontend.removeMusicFromSheet(musicItems, sheetType);
+            },
+        },
+        {
+            title: i18n.t("music_list_context_menu.edit_music"),
+            icon: "pencil-square",
+            show: !isArray && MusicSheet.frontend.getAllSheets().some((sheet) => sheet.id === sheetType),
+            onClick() {
+                if (!isArray) {
+                    showModal("EditMusic", {
+                        musicItem: musicItems,
+                        sheetId: sheetType,
+                    });
+                }
             },
         },
         {
@@ -326,14 +342,10 @@ function _MusicList(props: IMusicListProps) {
     const [sorting, setSorting] = useState<SortingState>([]);
 
     const musicListRef = useRef(musicList);
-    const columnShownRef = useRef(
-        AppConfig.getConfig("normal.musicListColumnsShown").reduce(
-            (prev, curr) => ({
-                ...prev,
-                [curr]: false,
-            }),
-            {},
-        ),
+    const hiddenColumns = useAppConfig("normal.musicListColumnsShown") ?? [];
+    const columnVisibility = [...hiddenColumns, ...(hideRows ?? [])].reduce(
+        (visibility, column) => ({ ...visibility, [column]: false }),
+        {},
     );
 
     const table = useReactTable({
@@ -342,11 +354,7 @@ function _MusicList(props: IMusicListProps) {
         columns: columnDef,
         state: {
             sorting: sorting,
-            columnVisibility: hideRows
-                ? hideRows.reduce((prev, curr) => ({ ...prev, [curr]: false }), {
-                    ...columnShownRef.current,
-                })
-                : columnShownRef.current,
+            columnVisibility,
         },
         onSortingChange: setSorting,
         getCoreRowModel: getCoreRowModel(),
@@ -373,7 +381,26 @@ function _MusicList(props: IMusicListProps) {
         setActiveItems(new Set());
         lastActiveIndexRef.current = 0;
         musicListRef.current = musicList;
-    }, [musicList]);
+    }, [musicList, sorting, musicSheet?.id]);
+
+    useEffect(() => messageBus.onCommand("EditSelectedMusic", () => {
+        const container = tableContainerRef.current;
+        const focusedElement = document.activeElement;
+        if (!container?.isConnected || !container.contains(focusedElement) || !container.getClientRects().length) {
+            return;
+        }
+        if (activeItems.size !== 1 || document.getElementById("components--modal-base-container")) {
+            return;
+        }
+        if (musicSheet?.platform !== localPluginName || !MusicSheet.frontend.getAllSheets().some((sheet) => sheet.id === musicSheet.id)) {
+            return;
+        }
+        const rowIndex = activeItems.values().next().value;
+        const musicItem = table.getRowModel().rows[rowIndex]?.original;
+        if (musicItem) {
+            showModal("EditMusic", { musicItem, sheetId: musicSheet.id });
+        }
+    }), [activeItems, musicSheet, table]);
 
     useEffect(() => {
         const ctrlAHandler = (evt: Event) => {
@@ -524,7 +551,8 @@ function _MusicList(props: IMusicListProps) {
                                     }
                                 }}
                                 onClick={() => {
-                                // 如果点击的时候按下shift
+                                    tableContainerRef.current?.focus({ preventScroll: true });
+                                    // 如果点击的时候按下shift
                                     if (hotkeys.shift) {
                                         let start = lastActiveIndexRef.current;
                                         let end = virtualItem.rowIndex;

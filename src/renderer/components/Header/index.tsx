@@ -50,6 +50,7 @@ export default function AppHeader() {
                 <HeaderNavigator></HeaderNavigator>
                 <div id="header-search" className="header-search">
                     <input
+                        id="header-search-input"
                         ref={inputRef}
                         className="header-search-input"
                         placeholder={t("app_header.search_placeholder")}

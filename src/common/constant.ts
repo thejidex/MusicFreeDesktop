@@ -87,6 +87,9 @@ export const shortCutKeys: IShortCutKeys[] = [
     "volume-down",
     "toggle-desktop-lyric",
     "like/dislike",
+    "add-to-favorite",
+    "focus-search",
+    "edit-music",
     "toggle-main-window-visible",
 ];
 
@@ -100,6 +103,9 @@ export const shortCutKeysCommands: Record<IShortCutKeys, keyof ICommand> =
     "volume-up": "VolumeUp",
     "toggle-desktop-lyric": "ToggleDesktopLyric",
     "like/dislike": "ToggleFavorite",
+    "add-to-favorite": "ToggleFavorite",
+    "focus-search": "FocusSearch",
+    "edit-music": "EditSelectedMusic",
     "toggle-main-window-visible": "ToggleMainWindowVisible",
 };
 

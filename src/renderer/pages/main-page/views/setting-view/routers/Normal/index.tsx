@@ -61,11 +61,12 @@ export default function Normal() {
                 label={t("settings.normal.music_list_hide_columns")}
                 keyPath="normal.musicListColumnsShown"
                 options={[
+                    "album",
                     "duration",
                     "platform",
                 ]}
                 renderItem={(item) => {
-                    return t("media.media_" + item);
+                    return t(item === "album" ? "media.media_type_album" : "media.media_" + item);
                 }}
             ></MultiRadioGroupSettingItem>
             <ListBoxSettingItem

@@ -5,7 +5,7 @@ interface _IAppConfig {
     "normal.checkUpdate": boolean;
     "normal.autoLoadMore": boolean;
     "normal.taskbarThumb": "window" | "artwork";
-    "normal.musicListColumnsShown": Array<"duration" | "platform">;
+    "normal.musicListColumnsShown": Array<"album" | "duration" | "platform">;
     "normal.language": string;
 
     /** 歌单内搜索区分大小写 */
@@ -47,20 +47,23 @@ interface _IAppConfig {
     /** 是否启用全局快捷键 */
     "shortCut.enableGlobal": boolean;
     /** 快捷键映射 */
-    "shortCut.shortcuts": Record<
+    "shortCut.shortcuts": Partial<Record<
         | "play/pause"
         | "skip-previous"
         | "skip-next"
         | "toggle-desktop-lyric"
         | "volume-up"
         | "volume-down"
-        | "like/dislike",
+        | "like/dislike"
+        | "add-to-favorite"
+        | "focus-search"
+        | "edit-music"
         | "toggle-main-window-visible",
         {
             local?: string[] | null;
             global?: string[] | null;
         }
-    >;
+    >>;
 
     /** 下载路径 */
     "download.path": string;

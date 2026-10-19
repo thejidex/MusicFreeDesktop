@@ -175,6 +175,10 @@ class AppConfig {
                 this.config = {
                     ..._defaultAppConfig,
                     ...this.config,
+                    "shortCut.shortcuts": {
+                        ..._defaultAppConfig["shortCut.shortcuts"],
+                        ...this.config["shortCut.shortcuts"],
+                    },
                 };
             }
         } catch (e) {

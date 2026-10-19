@@ -1,7 +1,7 @@
 {
   "name": "musicfree-desktop",
   "productName": "MusicFree",
-  "version": "0.0.8",
+  "version": "1.1.1",
   "description": "一个插件化的音乐播放器",
   "main": ".webpack/main",
   "scripts": {
@@ -10,7 +10,11 @@
     "package": "electron-forge package",
     "make": "electron-forge make",
     "publish": "electron-forge publish",
-    "lint": "eslint ./src --fix",
+    "build:release": "node scripts/build/build-portable.cjs",
+    "test:shortcuts": "node scripts/tests/shortcuts.cjs",
+    "test:library": "electron scripts/tests/library-customization.cjs",
+    "test:playback-metadata": "node scripts/tests/playback-metadata.cjs",
+    "lint": "eslint --config config/eslint.config.mjs ./src --fix",
     "lint-staged": "lint-staged",
     "prepare": "husky install"
   },
@@ -19,12 +23,14 @@
     "name": "猫头猫",
     "email": "lhx_xjtu@163.com"
   },
-  "license": "GPL",
+  "license": "AGPL-3.0-only",
   "lint-staged": {
     "src/**/*.{ts,tsx,js}": [
-      "npm run lint",
-      "git add ."
+      "eslint --config config/eslint.config.mjs --fix"
     ]
+  },
+  "config": {
+    "forge": "./config/forge.config.cjs"
   },
   "devDependencies": {
     "@babel/core": "^7.22.1",
@@ -37,7 +43,6 @@
     "@electron-forge/maker-zip": "6.4.1",
     "@electron-forge/plugin-webpack": "6.4.1",
     "@eslint/js": "^9.15.0",
-    "@larksuiteoapi/node-sdk": "^1.50.1",
     "@stylistic/eslint-plugin": "^5.0.0",
     "@svgr/webpack": "^8.1.0",
     "@timfish/forge-externals-plugin": "^0.2.1",

@@ -16,6 +16,7 @@ import hotkeys from "hotkeys-js";
 import { Trans, useTranslation } from "react-i18next";
 import DragReceiver, { startDrag } from "@/renderer/components/DragReceiver";
 import { useCurrentMusic, useMusicQueue } from "@renderer/core/track-player/hooks";
+import useAppConfig from "@/hooks/useAppConfig";
 
 const estimateItemHeight = 2.6 * rem;
 const DRAG_TAG = "Playlist";
@@ -28,6 +29,7 @@ export default function PlayList(props: IProps) {
     const { coverHeader } = props;
     const musicQueue = useMusicQueue();
     const currentMusic = useCurrentMusic();
+    const hiddenColumns = useAppConfig("normal.musicListColumnsShown") ?? [];
     const scrollElementRef = useRef<HTMLDivElement>();
     const [activeItems, setActiveItems] = useState<Set<number>>(new Set());
     const lastActiveIndexRef = useRef(0);
@@ -208,6 +210,8 @@ export default function PlayList(props: IProps) {
                                             activeItems.has(virtualItem.rowIndex)
                                         }
                                         musicItem={musicItem}
+                                        index={rowIndex + 1}
+                                        showPlatform={!hiddenColumns.includes("platform")}
                                     ></PlayListMusicItem>
 
                                     <IfTruthy condition={rowIndex === 0}>
@@ -239,10 +243,12 @@ interface IPlayListMusicItemProps {
     isPlaying: boolean;
     musicItem: IMusic.IMusicItem;
     isActive?: boolean;
+    index: number;
+    showPlatform: boolean;
 }
 
 function _PlayListMusicItem(props: IPlayListMusicItemProps) {
-    const { isPlaying, musicItem, isActive } = props;
+    const { isPlaying, musicItem, isActive, index, showPlatform } = props;
 
     if (!musicItem) {
         return null;
@@ -256,6 +262,7 @@ function _PlayListMusicItem(props: IPlayListMusicItemProps) {
             }}
             data-active={isActive}
         >
+            <div className="playlist--index">{index}</div>
             <div className="playlist--options">
                 <MusicFavorite musicItem={musicItem} size={16}></MusicFavorite>
                 <MusicDownloaded musicItem={musicItem} size={16}></MusicDownloaded>
@@ -266,15 +273,17 @@ function _PlayListMusicItem(props: IPlayListMusicItemProps) {
             <div className="playlist--artist" title={musicItem?.artist}>
                 {musicItem?.artist ?? "-"}
             </div>
-            <div className="playlist--platform">
-                <Tag
-                    style={{
-                        width: "initial",
-                    }}
-                >
-                    {musicItem?.platform}
-                </Tag>
-            </div>
+            <IfTruthy condition={showPlatform}>
+                <div className="playlist--platform">
+                    <Tag
+                        style={{
+                            width: "initial",
+                        }}
+                    >
+                        {musicItem.$$displayPlatform ?? musicItem.platform}
+                    </Tag>
+                </div>
+            </IfTruthy>
             <div
                 className="playlist--remove"
                 role="button"
@@ -293,5 +302,7 @@ const PlayListMusicItem = memo(
     (prev, curr) =>
         prev.isPlaying === curr.isPlaying &&
         prev.musicItem === curr.musicItem &&
-        prev.isActive === curr.isActive,
+        prev.isActive === curr.isActive &&
+        prev.index === curr.index &&
+        prev.showPlatform === curr.showPlatform,
 );

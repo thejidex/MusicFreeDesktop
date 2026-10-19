@@ -91,6 +91,24 @@ typings/
 # Electron-Forge
 out/
 
+# Local release packages; keep build scripts and version notes tracked.
+/release/*.exe
+/release/*.zip
+/release/SHA256SUMS*.txt
+/release/package-manifest*.json
+/release/MusicFree-v*/
+
+# Local instructions, personal profiles, and migration backups.
+/AGENTS.md
+portable/
+!scripts/build/portable/
+!scripts/build/portable/**
+portable.before-*/
+private-migration-backup/
+*.local.*
+.env.*
+!.env.example
+
 tmp
 
 plugins

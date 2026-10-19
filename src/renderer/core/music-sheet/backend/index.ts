@@ -253,6 +253,53 @@ export async function setStarredMusicSheets(sheets: IMedia.IMediaBase[]) {
 
 /**************************** 歌曲相关方法 ************************/
 
+/** 修改已加入我的歌单的歌曲信息，保留音源标识和其他插件字段。 */
+export async function updateMusicMetadata(
+    musicItem: IMedia.IMediaBase,
+    sheetId: string,
+    metadata: IMusic.IMusicMetadata,
+): Promise<IMusic.IMusicItem> {
+    const title = metadata.title.trim();
+    if (!title) {
+        throw new Error("Song title is required");
+    }
+
+    return await musicSheetDB.transaction(
+        "rw",
+        musicSheetDB.sheets,
+        musicSheetDB.musicStore,
+        async () => {
+            const sheet = await musicSheetDB.sheets.get(sheetId);
+            if (!sheet?.musicList?.some((item) => isSameMedia(item, musicItem))) {
+                throw new Error("Song is no longer in this sheet");
+            }
+
+            const storedMusic = await musicSheetDB.musicStore.get([
+                musicItem.platform,
+                musicItem.id,
+            ]);
+            if (!storedMusic) {
+                throw new Error("Song no longer exists");
+            }
+
+            // 不允许修改 platform/id，避免破坏数据库引用、插件调用和播放音源。
+            const overrides: IMusic.IMusicItem["$$metadataOverrides"] = {
+                title,
+                artist: metadata.artist.trim(),
+                album: metadata.album.trim(),
+                $$displayPlatform: metadata.displayPlatform.trim(),
+            };
+            const updatedMusic = {
+                ...storedMusic,
+                ...overrides,
+                $$metadataOverrides: overrides,
+            };
+            await musicSheetDB.musicStore.put(updatedMusic);
+            return updatedMusic;
+        },
+    );
+}
+
 /**
  * 添加歌曲到歌单
  * @param musicItems

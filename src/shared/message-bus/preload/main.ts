@@ -79,11 +79,15 @@ function onCommand<K extends keyof ICommand>(
     command: K,
     cb: (data: ICommand[K], from: "main" | number) => void,
 ) {
-    ee.on("command", (payload, from) => {
+    const listener = (payload: IPortMessage["payload"] & { command: K; data: ICommand[K] }, from: "main" | number) => {
         if (payload.command === command) {
             cb?.(payload.data, from);
         }
-    });
+    };
+    ee.on("command", listener);
+    return () => {
+        ee.off("command", listener);
+    };
 }
 
 function sendCommand<K extends keyof ICommand>(command: K, data: ICommand[K]) {

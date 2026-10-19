@@ -71,7 +71,7 @@ function MusicDetail() {
                         - {musicItem?.album}
                     </Condition>
                 </span>
-                {musicItem?.platform ? <Tag fill>{musicItem.platform}</Tag> : null}
+                {musicItem?.platform ? <Tag fill>{musicItem.$$displayPlatform ?? musicItem.platform}</Tag> : null}
             </div>
             <div className="music-body">
                 <div className="music-album-options">

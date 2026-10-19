@@ -46,23 +46,33 @@
     background: var(--listActiveColor);
   }
 
+  & .playlist--index {
+    min-width: 24px;
+    margin-right: 8px;
+    flex-shrink: 0;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    opacity: 0.75;
+  }
+
   & .playlist--options {
     display: flex;
     gap: 4px;
+    flex-shrink: 0;
   }
 
   & .playlist--title {
     margin-left: 8px;
-    width: 180px;
+    flex: 1;
+    min-width: 0;
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
-    flex-shrink: 0;
   }
 
   & .playlist--artist {
     margin-left: 8px;
-    width: 106px;
+    width: 78px;
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
@@ -71,9 +81,8 @@
 
   & .playlist--platform {
     margin-left: 8px;
-    flex-basis: 0;
-    flex-grow: 1;
-    width: 0;
+    width: 64px;
+    flex-shrink: 0;
   }
 
   & .playlist--remove {
