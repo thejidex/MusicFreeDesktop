@@ -63,7 +63,7 @@ async function main() {
     else if (option === '--output') output = args.shift();
     else if (option === '--skip-package') skipPackage = true;
     else if (option === '--help') {
-      console.log('node scripts/build/build-portable.cjs [--tag v1.2] [--output DIRECTORY] [--skip-package]');
+      console.log('node scripts/build/build-portable.cjs [--tag v1.3] [--output DIRECTORY] [--skip-package]');
       console.log('Default: use the package version and save release files in ./release.');
       return;
     } else throw new Error('Unknown option: ' + option);
@@ -156,7 +156,7 @@ async function main() {
     '原作者：https://github.com/maotoumao',
     '原仓库：https://github.com/maotoumao/MusicFreeDesktop',
     '本版本源码：https://github.com/thejidex/MusicFreeDesktop/tree/' + tag,
-    '修改者：thejidex；功能改进更新日期：2026-10-19；版权说明更新日期：2026-10-12。',
+    '修改者：thejidex；功能改进更新日期：2026-10-20；版权说明更新日期：2026-10-12。',
     '第三方版权文件：docs/third-party-licenses/INDEX.md。',
     '',
     'EXE 首次运行在旁边解压为 MusicFree-' + tag + '，然后启动。',
@@ -170,6 +170,8 @@ async function main() {
     '功能改进和使用限制详见 README.md。',
     '默认空格播放/暂停，左右方向键切歌；Ctrl+/ 搜索，Z 收藏或取消收藏当前歌曲。',
     '我的歌单中左键选中单首歌曲后，Ctrl+Z 打开编辑；输入框中保留正常撤销。',
+    '编辑后按 Enter 或点击保存，继续选中同一首歌曲并返回列表焦点，可接着使用上下键或 Ctrl+Z。',
+    '歌曲列表和右侧播放队列中左键选中歌曲后，上下方向键按显示顺序选择相邻歌曲，并自动滚动显示；首尾停止，不改变播放。',
     '我的歌单内右键单首歌曲可编辑歌名、作者、专辑和显示来源。',
     '设置 → 常规可隐藏歌曲列表的专辑、来源列。播放列表显示歌曲序号。',
     '左上角列表按钮隐藏或展开左侧功能栏，选择会保存；设置 → 常规也可调整。',

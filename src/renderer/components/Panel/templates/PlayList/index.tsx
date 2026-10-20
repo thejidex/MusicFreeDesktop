@@ -17,6 +17,7 @@ import { Trans, useTranslation } from "react-i18next";
 import DragReceiver, { startDrag } from "@/renderer/components/DragReceiver";
 import { useCurrentMusic, useMusicQueue } from "@renderer/core/track-player/hooks";
 import useAppConfig from "@/hooks/useAppConfig";
+import { handleMusicListNavigation } from "@/renderer/utils/music-list-navigation";
 
 const estimateItemHeight = 2.6 * rem;
 const DRAG_TAG = "Playlist";
@@ -118,6 +119,13 @@ export default function PlayList(props: IProps) {
                             height: virtualController.totalHeight,
                         }}
                         tabIndex={-1}
+                        onKeyDown={(event) => handleMusicListNavigation(event, {
+                            activeItems,
+                            lastActiveIndexRef,
+                            itemCount: musicQueue.length,
+                            setActiveItems,
+                            scrollToIndex: virtualController.scrollToIndex,
+                        })}
                         onFocus={() => {
                             hotkeys.setScope("play-list");
                         }}
@@ -131,6 +139,7 @@ export default function PlayList(props: IProps) {
                             return (
                                 <div
                                     key={virtualItem.rowIndex}
+                                    data-song-index={rowIndex}
                                     style={{
                                         position: "absolute",
                                         left: 0,
@@ -170,7 +179,8 @@ export default function PlayList(props: IProps) {
                                             );
                                         }
                                     }}
-                                    onClick={() => {
+                                    onClick={(event) => {
+                                        event.currentTarget.parentElement?.focus({ preventScroll: true });
                                         // 如果点击的时候按下shift
                                         if (hotkeys.shift) {
                                             let start = lastActiveIndexRef.current;

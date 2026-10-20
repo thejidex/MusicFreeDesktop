@@ -125,12 +125,17 @@ export default function useVirtualList<T>(props: IVirtualListProps<T>) {
     }
 
     function scrollToIndex(index: number, behavior?: ScrollBehavior) {
+        if (!scrollElementRef.current) {
+            return;
+        }
         scrollElementRef.current.scrollTo({
             top:
         (typeof offsetHeight === "number" ? offsetHeight : offsetHeight()) +
         estimateItemHeight * index,
             behavior,
         });
+        // Keep the virtual window in sync even when no native scroll event fires.
+        scrollHandler();
     }
 
     return {

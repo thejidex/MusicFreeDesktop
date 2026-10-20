@@ -1,4 +1,4 @@
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
 import MusicSheet from "@/renderer/core/music-sheet";
@@ -15,6 +15,14 @@ interface IEditMusicProps {
 export default function EditMusic({ musicItem, sheetId }: IEditMusicProps) {
     const { t } = useTranslation();
     const isMounted = useMounted();
+    const returnFocusRef = useRef<{
+        element: HTMLElement;
+        selectionScope: string | null;
+    }>();
+    if (!returnFocusRef.current && document.activeElement instanceof HTMLElement) {
+        const element = document.activeElement;
+        returnFocusRef.current = { element, selectionScope: element.getAttribute("data-selection-scope") };
+    }
     const [saving, setSaving] = useState(false);
     const [metadata, setMetadata] = useState<IMusic.IMusicMetadata>({
         title: musicItem.title ?? "",
@@ -22,6 +30,23 @@ export default function EditMusic({ musicItem, sheetId }: IEditMusicProps) {
         album: musicItem.album ?? "",
         displayPlatform: musicItem.$$displayPlatform ?? musicItem.platform,
     });
+
+    useEffect(() => () => {
+        const origin = returnFocusRef.current;
+        requestAnimationFrame(() => {
+            const element = origin?.element;
+            if (!element?.isConnected || !element.getClientRects().length ||
+                element.getAttribute("data-selection-scope") !== origin.selectionScope ||
+                document.getElementById("components--modal-base-container")) {
+                return;
+            }
+            const focusedElement = document.activeElement;
+            if (focusedElement && focusedElement !== document.body && focusedElement !== element && focusedElement.isConnected) {
+                return;
+            }
+            element.focus({ preventScroll: true });
+        });
+    }, []);
 
     const fields: Array<{ key: keyof IMusic.IMusicMetadata; label: string }> = [
         { key: "title", label: t("media.media_title") },

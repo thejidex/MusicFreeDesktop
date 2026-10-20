@@ -96,7 +96,7 @@ internal static class Launcher {
                 }
             }
             File.WriteAllText(Path.Combine(stage, ".musicfree-package"), PackageId, Encoding.ASCII);
-            Directory.Move(stage, target);
+            MoveStage(stage, target);
         } catch {
             // Delete only the unique, newly created staging folder beside target.
             string expectedParent = Path.GetDirectoryName(Path.GetFullPath(target));
@@ -104,6 +104,19 @@ internal static class Launcher {
                 try { Directory.Delete(stage, true); } catch { }
             }
             throw;
+        }
+    }
+    static void MoveStage(string stage, string target) {
+        // Scanners can briefly hold a directory handle after extraction.
+        for (int attempt = 0; ; attempt++) {
+            try { Directory.Move(stage, target); return; }
+            catch (IOException) {
+                if (attempt >= 39 || Directory.Exists(target) || File.Exists(target)) throw;
+            }
+            catch (UnauthorizedAccessException) {
+                if (attempt >= 39 || Directory.Exists(target) || File.Exists(target)) throw;
+            }
+            Thread.Sleep(250);
         }
     }
 }

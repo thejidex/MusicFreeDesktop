@@ -5,11 +5,15 @@
 
 基于 [猫头猫（maotoumao）的 MusicFreeDesktop](https://github.com/maotoumao/MusicFreeDesktop) 的个人 Fork，由 [thejidex](https://github.com/thejidex) 维护。保留原项目的插件化播放、歌单和主题功能，改进日常播放与歌曲管理体验。本仓库并非原作者的官方发行版。
 
-**当前版本：v1.2**，基于 MusicFreeDesktop 0.0.8。便携包面向 **Windows x64**；其他平台源码保留，但本版本未验证其构建和运行。
+**当前版本：v1.3**，基于 MusicFreeDesktop 0.0.8。便携包面向 **Windows x64**；其他平台源码保留，但本版本未验证其构建和运行。
 
 [下载发布版](https://github.com/thejidex/MusicFreeDesktop/releases) · [反馈问题](https://github.com/thejidex/MusicFreeDesktop/issues) · [更新记录](./docs/changelog.md) · [上游仓库](https://github.com/maotoumao/MusicFreeDesktop)
 
 ## 本次更新
+
+v1.3 增加歌曲列表和右侧播放队列的上下键选择：先左键选中一首歌，再按 `↑` 或 `↓` 按当前显示顺序选中上一首或下一首歌曲，列表自动滚动到选中项；到达首尾时停止。选择变化不会切歌，输入框和其他控件保持原有按键行为。
+
+## v1.2 改进
 
 v1.2 在 v1.1.1 的基础上增加以下功能：
 
@@ -37,7 +41,7 @@ v1.2 在 v1.1.1 的基础上增加以下功能：
 | 应用图标 | 应用、窗口、托盘和界面标志统一使用银色苹果图标。 |
 | 发布方式 | 统一生成 Windows x64 自动解压 EXE、ZIP 和 SHA-256 校验文件；构建过程排除个人数据。 |
 
-**编辑说明：** 编辑内容保存在本机，同一首歌在其他自建歌单中的信息也会更新，播放队列及最近播放同步显示。修改“来源”只改变显示名称，不改变插件、歌曲 ID 或实际播放音源，也不修改原始音频文件的标签。插件补全信息时会保留手动编辑的字段。
+**编辑说明：** 按 Enter 或点击保存后，继续选中刚才编辑的歌曲并返回列表焦点，可接着使用上下键或 Ctrl+Z；即使改名导致排序位置变化，也会跟随同一首歌曲。编辑内容保存在本机，同一首歌在其他自建歌单中的信息也会更新，播放队列及最近播放同步显示。修改“来源”只改变显示名称，不改变插件、歌曲 ID 或实际播放音源，也不修改原始音频文件的标签。插件补全信息时会保留手动编辑的字段。
 
 来源列隐藏在旧版已经存在；本次增加专辑选项，并修复设置立即生效及播放队列的来源显示。快捷键可在“设置 → 快捷键”中调整，已有自定义绑定会保留。
 
@@ -56,11 +60,11 @@ v1.2 在 v1.1.1 的基础上增加以下功能：
 
 在 [Releases](https://github.com/thejidex/MusicFreeDesktop/releases) 对应版本的 **Assets** 中下载，实际已发布的版本以该页面为准：
 
-- `MusicFree-v1.2-win-x64.exe`：双击自动解压并启动，无需安装。
-- `MusicFree-v1.2-win-x64.zip`：完整解压后运行其中的 `MusicFree.exe`。
-- `SHA256SUMS-v1.2.txt`：用于核对下载文件的 SHA-256。
+- `MusicFree-v1.3-win-x64.exe`：双击自动解压并启动，无需安装。
+- `MusicFree-v1.3-win-x64.zip`：完整解压后运行其中的 `MusicFree.exe`。
+- `SHA256SUMS-v1.3.txt`：用于核对下载文件的 SHA-256。
 
-将 EXE 放在普通的可写文件夹。首次运行会在旁边生成 `MusicFree-v1.2` 文件夹，以后也可直接运行其中的 `MusicFree.exe`。**请保留整个程序文件夹**，其中的 `portable` 保存歌单、插件、主题、设置、播放次数、缓存和日志。歌曲默认下载到 `portable/downloads`，可在设置中更改。
+将 EXE 放在普通的可写文件夹。首次运行会在旁边生成 `MusicFree-v1.3` 文件夹，以后也可直接运行其中的 `MusicFree.exe`。**请保留整个程序文件夹**，其中的 `portable` 保存歌单、插件、主题、设置、播放次数、缓存和日志。歌曲默认下载到 `portable/downloads`，可在设置中更改。
 
 发布包不预装第三方音源插件，也不包含个人歌单、账号或配置。安装插件后再搜索和播放，可参考 [MusicFree 文档](https://musicfree.catcat.work/) 与 [插件示例](https://github.com/maotoumao/MusicFreePlugins)。仓库随附供下载者使用的主题包，下载仓库后可按下方说明安装主题。
 
@@ -110,9 +114,12 @@ npm run test:shortcuts
 npm run test:library
 npm run test:playback-metadata
 npm run test:play-counts
+npm run test:music-list-navigation
 ```
 
 `test:library` 和 `test:play-counts` 在隐藏的 Electron 窗口中使用 `out` 下的独立数据库，不会读取日常使用的歌单。后者覆盖播放次数持久化、并发递增、数值排序、播放事件去重和三种窗口状态的切换逻辑。
+
+`test:music-list-navigation` 在隐藏的 Electron 窗口中挂载歌曲列表、播放队列和编辑窗口，检查点击聚焦、上下选择、首尾边界、排序、虚拟滚动及输入框和快捷键隔离，并验证 Enter 保存后继续选中原歌曲、恢复列表焦点。
 
 ## 构建和发布
 
@@ -122,7 +129,7 @@ npm run test:play-counts
 npm run build:release
 ```
 
-构建脚本从当前源码生成程序，当前标签为 `v1.2`。界面、发布文件名和 Git 标签统一使用 `x.x`，后续依次使用 `v1.3`、`v1.4` 等；npm 内部元数据使用 `x.x.0` 以兼容工具链，不作为对外版本名称。最终 EXE、ZIP 和校验文件位于根目录 `release/`；构建清单及临时文件位于 `out/` 和 `.webpack/`，避免混入交付目录。自动解压启动器使用 Windows 自带的 .NET Framework C# 编译器；原生依赖如需编译，还需对应的 C++ 构建工具。
+构建脚本从当前源码生成程序，当前标签为 `v1.3`。界面、发布文件名和 Git 标签统一使用 `x.x`，后续依次使用 `v1.4`、`v1.5` 等；npm 内部元数据使用 `x.x.0` 以兼容工具链，不作为对外版本名称。最终 EXE、ZIP 和校验文件位于根目录 `release/`；构建清单及临时文件位于 `out/` 和 `.webpack/`，避免混入交付目录。自动解压启动器使用 Windows 自带的 .NET Framework C# 编译器；原生依赖如需编译，还需对应的 C++ 构建工具。
 
 同名发布文件存在时脚本会停止，以避免覆盖；更新版本时同步修改 `package.json`、`package-lock.json` 中的内部版本与 `release/version.json` 中的两段版本号。清理旧包前先检查是否仍需保留，尤其不要删除使用中的 `portable` 数据。上传 GitHub 前可删除本机的 `node_modules/`、`out/` 和 `.webpack/`，需要开发时执行 `npm ci` 即可重新生成依赖。
 
@@ -137,6 +144,7 @@ src/                    应用源码
 res/                    图标、语言等运行资源
 config/                 Forge、Webpack、ESLint 配置
 docs/                   更新记录和第三方版权说明
+docs/releases/          历史版本使用说明
 MusicFree主题/          8 款静态主题、3 款动态主题（.mftheme）
 scripts/build/          Windows 打包、启动器和版权收集
 scripts/tests/          回归检查
@@ -145,6 +153,8 @@ release/                最新 EXE、ZIP、校验文件及版本说明
 ```
 
 根目录只保留 README、许可证和 npm、TypeScript、Git 所需的入口文件。日常开发、检查和打包命令均从根目录执行；构建输出与个人便携数据不提交到 Git。
+
+`release/` 保留当前版本的发布包、校验文件、使用说明和版本信息；历史版本使用说明归档在 [docs/releases](./docs/releases)。
 
 ## 出处与许可证
 

@@ -38,6 +38,7 @@ import { shellUtil } from "@shared/utils/renderer";
 import useAppConfig from "@/hooks/useAppConfig";
 import messageBus from "@shared/message-bus/renderer/main";
 import playCounts, { playCountKey } from "@/renderer/core/play-counts";
+import { handleMusicListNavigation } from "@/renderer/utils/music-list-navigation";
 
 interface IMusicListProps {
     /** 展示的播放列表 */
@@ -148,6 +149,10 @@ const columnDef: ColumnDef<IMusic.IMusicItem>[] = [
 
 const estimizeItemHeight = 2.6 * 13; // lineheight 2.6rem
 
+function selectionKey(musicItem: IMusic.IMusicItem) {
+    return JSON.stringify([musicItem.platform, musicItem.id]);
+}
+
 export function showMusicContextMenu(
     musicItems: IMusic.IMusicItem | IMusic.IMusicItem[],
     x: number,
@@ -156,6 +161,9 @@ export function showMusicContextMenu(
 ) {
     const menuItems: IContextMenuItem[] = [];
     const isArray = Array.isArray(musicItems);
+    const focusOrigin = document.activeElement instanceof HTMLElement && document.activeElement.matches(".music-list-container")
+        ? document.activeElement : undefined;
+    const focusOriginScope = focusOrigin?.getAttribute("data-selection-scope");
     if (!isArray) {
         menuItems.push(
             {
@@ -211,6 +219,11 @@ export function showMusicContextMenu(
             show: !isArray && MusicSheet.frontend.getAllSheets().some((sheet) => sheet.id === sheetType),
             onClick() {
                 if (!isArray) {
+                    // A native click on the non-focusable menu item moves focus to body.
+                    if (focusOrigin?.isConnected && focusOrigin.getClientRects().length &&
+                        focusOrigin.getAttribute("data-selection-scope") === focusOriginScope) {
+                        focusOrigin.focus({ preventScroll: true });
+                    }
                     showModal("EditMusic", {
                         musicItem: musicItems,
                         sheetId: sheetType,
@@ -361,6 +374,7 @@ function _MusicList(props: IMusicListProps) {
     const canDrag = enableDrag && sorting.length === 0;
 
     const musicListRef = useRef(musicList);
+    musicListRef.current = musicList;
     const hiddenColumns = useAppConfig("normal.musicListColumnsShown") ?? [];
     const columnVisibility = [...hiddenColumns, ...(hideRows ?? []), ...(!showPlayCount ? ["playCount"] : [])].reduce(
         (visibility, column) => ({ ...visibility, [column]: false }),
@@ -393,14 +407,72 @@ function _MusicList(props: IMusicListProps) {
             : virtualProps?.fallbackRenderCount ?? 50,
     });
 
-    const [activeItems, setActiveItems] = useState<Set<number>>(new Set());
+    const rows = table.getRowModel().rows;
+    const rowKeys = useMemo(() => rows.map(row => selectionKey(row.original)), [rows]);
+    const selectionScope = JSON.stringify([musicSheet?.platform, musicSheet?.id]);
+    const [selection, setSelection] = useState(() => ({
+        scope: selectionScope,
+        keys: new Set<string>(),
+    }));
     const lastActiveIndexRef = useRef(0);
+    const lastActiveKeyRef = useRef<string>();
+    const rowsRef = useRef(rows);
+    rowsRef.current = rows;
+    const selectionScopeRef = useRef(selectionScope);
+    if (selectionScopeRef.current !== selectionScope) {
+        selectionScopeRef.current = selectionScope;
+        lastActiveKeyRef.current = undefined;
+        lastActiveIndexRef.current = 0;
+    }
+    if (lastActiveKeyRef.current !== undefined) {
+        const anchorIndex = rowKeys.indexOf(lastActiveKeyRef.current);
+        lastActiveIndexRef.current = Math.max(anchorIndex, 0);
+        if (anchorIndex < 0) {
+            lastActiveKeyRef.current = undefined;
+        }
+    }
+    const activeItems = useMemo(() => new Set(
+        rowKeys.flatMap((key, index) => selection.scope === selectionScope && selection.keys.has(key) ? [index] : []),
+    ), [rowKeys, selection, selectionScope]);
+    const setActiveItems = useCallback((indexes: Set<number>) => {
+        const currentRows = rowsRef.current;
+        const keys = new Set<string>();
+        indexes.forEach(index => {
+            const item = currentRows[index]?.original;
+            if (item) {
+                keys.add(selectionKey(item));
+            }
+        });
+        const anchor = currentRows[lastActiveIndexRef.current]?.original;
+        lastActiveKeyRef.current = anchor ? selectionKey(anchor) : undefined;
+        setSelection({ scope: selectionScopeRef.current, keys });
+    }, []);
 
     useEffect(() => {
-        setActiveItems(new Set());
-        lastActiveIndexRef.current = 0;
-        musicListRef.current = musicList;
-    }, [musicList, sorting, musicSheet?.id, counts]);
+        const availableKeys = new Set(rowKeys);
+        setSelection(previous => {
+            const keys = previous.scope === selectionScope
+                ? new Set([...previous.keys].filter(key => availableKeys.has(key)))
+                : new Set<string>();
+            return previous.scope === selectionScope && keys.size === previous.keys.size
+                ? previous
+                : { scope: selectionScope, keys };
+        });
+    }, [rowKeys, selectionScope]);
+
+    const revealSelectionRef = useRef<() => void>();
+    revealSelectionRef.current = () => {
+        if (activeItems.size !== 1) {
+            return;
+        }
+        const index = activeItems.values().next().value;
+        const row = tableContainerRef.current?.querySelector<HTMLElement>(`[data-song-index="${index}"]`);
+        if (row) {
+            row.scrollIntoView({ block: "nearest", inline: "nearest" });
+        } else {
+            virtualController.scrollToIndex(index);
+        }
+    };
 
     useEffect(() => {
         if (!showPlayCount) {
@@ -462,11 +534,28 @@ function _MusicList(props: IMusicListProps) {
     return (
         <div
             className="music-list-container"
+            data-selection-scope={selectionScope}
             style={containerStyle}
             ref={tableContainerRef}
             tabIndex={-1}
-            onFocus={() => {
+            onKeyDown={(event) => handleMusicListNavigation(event, {
+                activeItems,
+                lastActiveIndexRef,
+                itemCount: table.getRowModel().rows.length,
+                setActiveItems,
+                scrollToIndex: virtualController.scrollToIndex,
+            })}
+            onFocus={(event) => {
                 hotkeys.setScope("music-list");
+                if (event.target === event.currentTarget) {
+                    const container = event.currentTarget;
+                    // Row clicks update selection after focusing; reveal that current selection.
+                    requestAnimationFrame(() => {
+                        if (container.isConnected && document.activeElement === container) {
+                            revealSelectionRef.current?.();
+                        }
+                    });
+                }
             }}
             onBlur={() => {
                 hotkeys.setScope("all");
@@ -544,10 +633,12 @@ function _MusicList(props: IMusicListProps) {
                         return (
                             <tr
                                 key={row.id}
+                                data-song-index={virtualItem.rowIndex}
                                 data-active={
                                     activeItems.has(virtualItem.rowIndex)
                                 }
                                 onContextMenu={(e) => {
+                                    tableContainerRef.current?.focus({ preventScroll: true });
                                     if (
                                         activeItems.size > 1
                                     ) {
@@ -607,8 +698,8 @@ function _MusicList(props: IMusicListProps) {
                                         }
                                         setActiveItems(newSet);
                                     } else {
-                                        setActiveItems(new Set([virtualItem.rowIndex]));
                                         lastActiveIndexRef.current = virtualItem.rowIndex;
+                                        setActiveItems(new Set([virtualItem.rowIndex]));
                                     }
                                 }}
                                 onDoubleClick={() => {
