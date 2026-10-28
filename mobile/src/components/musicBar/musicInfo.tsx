@@ -18,6 +18,7 @@ import Animated, {
 } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { timingConfig } from "@/constants/commonConst";
+import { library, useLibraryRevision } from "@/core/library";
 
 interface IBarMusicItemProps {
     musicItem: IMusic.IMusicItem | null;
@@ -25,7 +26,9 @@ interface IBarMusicItemProps {
     transformSharedValue: SharedValue<number>;
 }
 function _BarMusicItem(props: IBarMusicItemProps) {
-    const { musicItem, activeIndex, transformSharedValue } = props;
+    const { musicItem: original, activeIndex, transformSharedValue } = props;
+    useLibraryRevision();
+    const musicItem = original ? library.apply(original) : null;
     const colors = useColors();
     const safeAreaInsets = useSafeAreaInsets();
 
