@@ -131,6 +131,9 @@ android {
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode appVersionCode
         versionName appVersion.tokenize(".").take(2).join(".")
+        ndk {
+            abiFilters(*((project.findProperty("reactNativeArchitectures") ?: "arm64-v8a").split(",")))
+        }
     }
     signingConfigs {
         debug {

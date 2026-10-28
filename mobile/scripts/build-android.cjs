@@ -35,6 +35,17 @@ if (result.error) throw result.error;
 if (result.status !== 0) process.exit(result.status || 1);
 const built = path.join(root, 'android/app/build/outputs/apk/release/app-release.apk');
 if (!fs.existsSync(built)) throw new Error('Signed APK not found');
+const libraries = [];
+require('fflate').unzipSync(fs.readFileSync(built), { filter(entry) {
+    if (entry.name.startsWith('lib/') && entry.name.endsWith('.so')) libraries.push(entry.name);
+    return false;
+} });
+if (!libraries.length || libraries.some(name => name.split('/')[1] !== arch)) {
+    throw new Error('APK contains unexpected native architectures');
+}
+for (const name of ['libreactnative.so', 'libhermes.so', 'libexpo-modules-core.so', 'libreactnativemmkv.so', 'libreanimated.so', 'libworklets.so', 'librnscreens.so']) {
+    if (!libraries.includes(`lib/${arch}/${name}`)) throw new Error(`APK native dependency missing: ${name}`);
+}
 fs.mkdirSync(output, { recursive: true });
 fs.copyFileSync(built, target);
 const hash = crypto.createHash('sha256').update(fs.readFileSync(target)).digest('hex');
