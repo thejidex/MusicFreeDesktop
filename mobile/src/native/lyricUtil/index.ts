@@ -2,6 +2,7 @@ import Config from "@/core/appConfig";
 import Toast from "@/utils/toast";
 import { NativeModule, NativeModules } from "react-native";
 import { errorLog } from "@/utils/log.ts";
+import { displayLyric } from "@/utils/lyric-display";
 
 export enum NativeTextAlignment {
     // 左对齐
@@ -62,6 +63,10 @@ const LyricUtil: ILyricUtil = NativeModules.LyricUtil ?? {
 };
 
 const originalShowStatusBarLyric = LyricUtil.showStatusBarLyric;
+const originalSetText = LyricUtil.setStatusBarLyricText;
+LyricUtil.setStatusBarLyricText = text => originalSetText(
+    displayLyric(text, Config.getConfig("lyric.simplifiedChinese") ?? true) ?? "",
+);
 
 const showStatusBarLyric: ILyricUtil["showStatusBarLyric"] = async (
     initLyric,

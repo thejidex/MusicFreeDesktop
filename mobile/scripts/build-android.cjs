@@ -26,6 +26,7 @@ for (const key of ['MUSICFREE_ANDROID_KEYSTORE', 'MUSICFREE_ANDROID_STORE_PASSWO
     if (!env[key]) throw new Error(`Missing ${key}; release APKs must use your persistent signing key.`);
 }
 const windows = process.platform === 'win32';
+require('./collect-notices.cjs');
 const result = spawnSync(windows ? 'cmd.exe' : './gradlew', windows
     ? ['/d', '/c', 'gradlew.bat', 'assembleRelease', `-PreactNativeArchitectures=${arch}`, '--no-daemon', '--console=plain', '--max-workers=2']
     : ['assembleRelease', `-PreactNativeArchitectures=${arch}`, '--no-daemon', '--console=plain', '--max-workers=2'],

@@ -177,7 +177,7 @@ export default function (props: IPanelBaseProps) {
         </Animated.View>
     );
 
-    return (
+    const content = (
         <>
             <Pressable
                 style={style.maskWrapper}
@@ -188,16 +188,16 @@ export default function (props: IPanelBaseProps) {
                     style={[style.maskWrapper, style.mask, maskAnimated]}
                 />
             </Pressable>
-            {keyboardAvoidBehavior === "none" ? (
-                panelBody
-            ) : (
-                <KeyboardAvoidingView
-                    style={style.kbContainer}
-                    behavior={keyboardAvoidBehavior || "position"}>
-                    {panelBody}
-                </KeyboardAvoidingView>
-            )}
+            {panelBody}
         </>
+    );
+    return keyboardAvoidBehavior === "none" ? content : (
+        <KeyboardAvoidingView
+            style={style.kbContainer}
+            contentContainerStyle={{ flex: 1 }}
+            behavior={keyboardAvoidBehavior || "position"}>
+            {content}
+        </KeyboardAvoidingView>
     );
 }
 
@@ -225,6 +225,7 @@ const style = StyleSheet.create({
         zIndex: 15010,
     },
     kbContainer: {
+        ...StyleSheet.absoluteFillObject,
         zIndex: 15010,
     },
 });

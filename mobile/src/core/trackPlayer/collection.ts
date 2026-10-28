@@ -9,7 +9,7 @@ export async function resolveCollection(song: IMusic.IMusicItem, getAlbum: (item
     try {
         const album = await getAlbum({ ...song, description: song.description ?? "" }, 1);
         if (album?.isEnd === false || !Array.isArray(album?.musicList) || album.musicList.length < 2) return null;
-        const parts = album.musicList.map((item: any) => ({ ...song, ...item, platform: song.platform, duration: Number(item.duration) }));
+        const parts = album.musicList.map((item: any) => ({ ...song, ...item, url: item.url, source: item.source, platform: song.platform, duration: Number(item.duration) }));
         if (parts.some((part: any) => !part.cid || !Number.isFinite(part.duration) || part.duration <= 0)) return null;
         let total = 0;
         const offsets = parts.map((part: any) => {

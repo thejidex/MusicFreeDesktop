@@ -26,7 +26,7 @@ export default function SheetMusicList() {
     return (
         <HorizontalSafeAreaView style={globalStyle.flex1}>
             <MusicList
-                Header={<><Header />{showCounts ? <Pressable onPress={() => setCountSort((countSort + 1) % 3)} style={{ padding: 16 }}><ThemeText>播放次数：{["原顺序", "升序", "降序"][countSort]}（点击切换）</ThemeText></Pressable> : null}</>}
+                Header={<><Header musicList={musicList} />{showCounts ? <Pressable onPress={() => setCountSort((countSort + 1) % 3)} style={{ padding: 16 }}><ThemeText>播放次数：{["原顺序", "升序", "降序"][countSort]}（点击切换）</ThemeText></Pressable> : null}</>}
                 musicList={musicList}
                 musicSheet={musicSheet}
                 showIndex

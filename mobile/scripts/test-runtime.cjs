@@ -42,7 +42,9 @@ async function main() {
     const collection = load('core/trackPlayer/collection.ts');
     const song = { platform: 'bilibili', id: 'video', bvid: 'BV-test', title: 'Collection' };
     const getAlbum = async () => ({ isEnd: true, musicList: [{ id: 'part-a', cid: 1, duration: 10 }, { id: 'part-b', cid: 2, duration: 20 }] });
-    const plan = await collection.resolveCollection(song, getAlbum);
+    const plan = await collection.resolveCollection({ ...song, url: 'https://expired.example/last-part', source: { standard: { url: 'https://expired.example/last-part' } } }, getAlbum);
+    assert.equal(plan.parts[0].url, undefined);
+    assert.equal(plan.parts[0].source, undefined);
     assert.deepEqual(plan.offsets, [0, 10]);
     assert.equal(plan.total, 30);
     assert.deepEqual(collection.collectionPosition(plan, 15), { part: 1, position: 5 });

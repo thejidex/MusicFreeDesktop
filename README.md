@@ -71,7 +71,7 @@ v1.2 在 v1.1.1 的基础上增加以下功能：
 - `MusicFree-v1.4-win-x64.exe`：双击自动解压并启动，无需安装。
 - `MusicFree-v1.4-win-x64.zip`：完整解压后运行其中的 `MusicFree.exe`。
 - `SHA256SUMS-v1.4.txt`：用于核对下载文件的 SHA-256。
-- `MusicFree-v1.4-android-arm64.apk`：Android 7.0 及以上的 arm64 手机，允许对应文件管理器安装后打开。
+- `MusicFree-v1.4-android-arm64.apk`：Android 7.0 及以上的 arm64 手机（当前预览要求 4KB 内存页），允许对应文件管理器安装后打开。
 - `MusicFree-v1.4-ios-unsigned.ipa`：iOS 15.1 及以上的未签名包，需要另行签名。
 
 将 EXE 放在普通的可写文件夹。首次运行会在旁边生成 `MusicFree-v1.4` 文件夹，以后也可直接运行其中的 `MusicFree.exe`。**请保留整个程序文件夹**，其中的 `portable` 保存歌单、插件、主题、设置、播放次数、缓存和日志。歌曲默认下载到 `portable/downloads`，可在设置中更改。

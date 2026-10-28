@@ -118,6 +118,7 @@ def appVersionCode = 10400
 
 
 android {
+    sourceSets { main.assets.srcDirs += file("$rootDir/../out/notices") }
     ndkVersion rootProject.ext.ndkVersion
     buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdk rootProject.ext.compileSdkVersion

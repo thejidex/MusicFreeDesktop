@@ -62,6 +62,7 @@ export default function MusicList(props: IMusicListProps) {
     const flashListRef = useRef<FlashList<IMusic.IMusicItem>>(null);
     useEffect(() => {
         if (selectedIndex >= 0) flashListRef.current?.scrollToIndex({ index: selectedIndex, animated: false, viewPosition: 0.5 });
+        else if (selected) setSelected(null);
     }, [selectedIndex, musicList]);
     const [showBadge, setShowBadge] = useState(false);
     const hideTimeoutRef = useRef<NodeJS.Timeout>();

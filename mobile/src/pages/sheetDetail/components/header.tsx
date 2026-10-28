@@ -10,7 +10,7 @@ import rpx from "@/utils/rpx";
 import React from "react";
 import { StyleSheet, View } from "react-native";
 
-export default function Header() {
+export default function Header({ musicList }: { musicList?: IMusic.IMusicItem[] } = {}) {
     const { id = "favorite" } = useParams<"local-sheet-detail">();
     const sheet = useSheetItem(id);
     const colors = useColors();
@@ -35,7 +35,7 @@ export default function Header() {
                     </ThemeText>
                 </View>
             </View>
-            <PlayAllBar musicList={sheet?.musicList} musicSheet={sheet} />
+            <PlayAllBar musicList={musicList ?? sheet?.musicList} musicSheet={sheet} />
         </View>
     );
 }

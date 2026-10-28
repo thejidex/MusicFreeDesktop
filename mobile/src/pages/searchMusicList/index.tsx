@@ -9,7 +9,8 @@ import { useI18N } from "@/core/i18n";
 import { useParams } from "@/core/router";
 import useColors from "@/hooks/useColors";
 import rpx from "@/utils/rpx";
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
+import { library, useLibraryRevision } from "@/core/library";
 import { StyleSheet } from "react-native";
 import SearchResult from "./searchResult";
 
@@ -18,7 +19,7 @@ function filterMusic(query: string, musicList: IMusic.IMusicItem[]) {
         return musicList;
     }
     return musicList.filter(_ =>
-        `${_.title} ${_.artist} ${_.album} ${_.platform}`
+        `${_.title} ${_.artist} ${_.album} ${_.displaySource ?? _.platform}`
             .toLowerCase()
             .includes(query.toLowerCase()),
     );
@@ -26,16 +27,15 @@ function filterMusic(query: string, musicList: IMusic.IMusicItem[]) {
 
 export default function SearchMusicList() {
     const { musicList, musicSheet } = useParams<"search-music-list">();
-    const [result, setResult] = useState<IMusic.IMusicItem[]>(musicList ?? []);
     const [query, setQuery] = useState("");
+    const revision = useLibraryRevision();
+    const result = useMemo(() => filterMusic(query.trim(), (musicList ?? []).map(song => library.apply(song))), [musicList, query, revision]);
 
     const colors = useColors();
     const { t } = useI18N();
 
     const onChangeSearch = (_: string) => {
         setQuery(_);
-        // useTransition做优化
-        setResult(filterMusic(_.trim(), musicList ?? []));
     };
 
     return (

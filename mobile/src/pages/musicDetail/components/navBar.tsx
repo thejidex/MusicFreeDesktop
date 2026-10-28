@@ -8,10 +8,12 @@ import Share from "react-native-share";
 import { B64Asset } from "@/constants/assetsConst";
 import IconButton from "@/components/base/iconButton";
 import { useCurrentMusic } from "@/core/trackPlayer";
+import { useAppConfig } from "@/core/appConfig";
 
 export default function NavBar() {
     const navigation = useNavigation();
     const musicItem = useCurrentMusic();
+    const hideSource = useAppConfig("library.hideSource");
     // const {showShare} = useShare();
 
     return (
@@ -33,9 +35,9 @@ export default function NavBar() {
                     <Text style={styles.headerArtistText} numberOfLines={1}>
                         {musicItem?.artist}
                     </Text>
-                    {musicItem?.platform ? (
+                    {!hideSource && musicItem?.platform ? (
                         <Tag
-                            tagName={musicItem.platform}
+                            tagName={musicItem.displaySource ?? musicItem.platform}
                             containerStyle={styles.tagBg}
                             style={styles.tagText}
                         />

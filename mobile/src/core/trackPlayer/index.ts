@@ -159,31 +159,26 @@ class TrackPlayer extends EventEmitter<{
         }
 
         if (track && this.isInPlayList(track)) {
-            if (!this.configService.getConfig("basic.autoPlayWhenAppStart")) {
-                track.isInit = true;
-            }
-
-            // 异步
-            this.pluginManagerService.getByMedia(track)
-                ?.methods.getMediaSource(track, quality)
-                .then(async newSource => {
-                    track.url = newSource?.url || track.url;
-                    track.headers = newSource?.headers || track.headers;
-
-                    if (isSameMediaItem(this.currentMusic, track)) {
-                        await this.setTrackSource(track as Track, false);
-                        if (progress) {
-                            // 异步
-                            this.seekTo(progress);
-                        }
-                    }
-                });
+            const autoPlay = this.configService.getConfig("basic.autoPlayWhenAppStart") ?? false;
+            track.isInit = !autoPlay;
+            getDefaultStore().set(qualityAtom, quality);
             this.setCurrentMusic(track);
-
-            if (progress) {
-                // 异步
-                this.seekTo(progress);
-            }
+            // Rebuild collection offsets before restoring cumulative progress.
+            // Plugin/network work must not block application bootstrap.
+            void (async () => {
+                const plugin = this.pluginManagerService.getByMedia(track);
+                const plan = plugin ? await resolveCollection(track, plugin.methods.getAlbumInfo.bind(plugin.methods)) : null;
+                if (!this.isCurrentMusic(track)) return;
+                this.collection = plan;
+                if (plan && progress) plan.part = collectionPosition(plan, progress).part;
+                const newSource = await plugin?.methods.getMediaSource(plan ? plan.parts[plan.part] : track, quality);
+                if (!this.isCurrentMusic(track) || this.collection !== plan) return;
+                track.url = newSource?.url || track.url;
+                track.headers = newSource?.headers || track.headers;
+                await this.setTrackSource(track as Track, false);
+                if (progress) await this.seekTo(progress);
+                if (autoPlay) await ReactNativeTrackPlayer.play();
+            })().catch(error => errorLog("恢复播放状态失败", error));
         }
 
         if (!this.serviceInited) {

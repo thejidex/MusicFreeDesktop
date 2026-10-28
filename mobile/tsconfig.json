@@ -11,5 +11,7 @@
       "@/*": ["./src/*"]
     },
     "types": ["node"]
-  }
+  },
+  "include": ["src/**/*.ts", "src/**/*.tsx", "index.js"],
+  "exclude": ["node_modules", "out", "android", "ios"]
 }

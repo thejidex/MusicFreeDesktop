@@ -42,7 +42,7 @@ npm run build:android
 
 发布构建必须提供固定的签名密钥，避免后续版本无法覆盖安装。通过环境变量提供 `MUSICFREE_ANDROID_KEYSTORE`、`MUSICFREE_ANDROID_STORE_PASSWORD`、`MUSICFREE_ANDROID_KEY_ALIAS`、`MUSICFREE_ANDROID_KEY_PASSWORD`；也可将 `MUSICFREE_ANDROID_SIGNING_FILE` 指向仓库外的 JSON，字段为 `storeFile`、`storePassword`、`keyAlias`、`keyPassword`。密钥与密码都不能提交 Git 或附在 Releases 中。
 
-默认生成 `release/MusicFree-v1.4-android-arm64.apk` 和独立的 SHA-256 文件。安装时允许相应文件管理器安装来源不明应用。仅 arm64 架构，最低 Android 7.0。通过 `MUSICFREE_ANDROID_ARCH` 可另外构建 `armeabi-v7a` 或 `x86_64`。同名文件存在时脚本停止，防止覆盖既有交付。
+默认生成 `release/MusicFree-v1.4-android-arm64.apk` 和独立的 SHA-256 文件。安装时允许相应文件管理器安装来源不明应用。仅 arm64 架构，最低 Android 7.0；本次预览要求 4KB 内存页，当前原生依赖不支持 16KB 内存页设备。通过 `MUSICFREE_ANDROID_ARCH` 可另外构建 `armeabi-v7a` 或 `x86_64`。同名文件存在时脚本停止，防止覆盖既有交付。
 
 ## 构建 iOS
 

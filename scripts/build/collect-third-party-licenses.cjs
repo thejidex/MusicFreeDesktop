@@ -3,9 +3,9 @@ const fs = require('fs');
 const path = require('path');
 
 // Keep original notices byte-for-byte; do not synthesize license text from SPDX IDs.
-module.exports = function collectThirdPartyLicenses(repo, stage) {
+module.exports = function collectThirdPartyLicenses(repo, stage, options = {}) {
   const output = path.join(stage, 'docs', 'third-party-licenses');
-  fs.cpSync(path.join(repo, 'docs', 'third-party-licenses'), output, { recursive: true });
+  fs.cpSync(options.noticesDirectory || path.join(repo, 'docs', 'third-party-licenses'), output, { recursive: true });
   const lock = JSON.parse(fs.readFileSync(path.join(repo, 'package-lock.json'), 'utf8'));
   const records = [];
   const opencc = JSON.parse(fs.readFileSync(path.join(repo, 'node_modules/opencc-js/package.json'), 'utf8'));
