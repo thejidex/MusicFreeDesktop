@@ -9,6 +9,10 @@
 
 [下载发布版](https://github.com/thejidex/MusicFreeDesktop/releases) · [反馈问题](https://github.com/thejidex/MusicFreeDesktop/issues) · [更新记录](./docs/changelog.md) · [上游仓库](https://github.com/maotoumao/MusicFreeDesktop)
 
+## Android 与 iOS 移植
+
+正在准备 v1.4 移动端版本。独立工程、手机端操作、平台差异及构建方法见 [mobile/README.md](./mobile/README.md)。iOS 的交付目标是由使用者自行签名安装的未签名 IPA。原生构建和设备验收完成前，不将移动端标为正式可发布。
+
 ## 本次更新
 
 v1.3 增加歌曲列表和右侧播放队列的上下键选择：先左键选中一首歌，再按 `↑` 或 `↓` 按当前显示顺序选中上一首或下一首歌曲，列表自动滚动到选中项；到达首尾时停止。选择变化不会切歌，输入框和其他控件保持原有按键行为。

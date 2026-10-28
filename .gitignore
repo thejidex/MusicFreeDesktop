@@ -118,3 +118,8 @@ plugins
 .idea/
 
 undefinedelectron-log-preload.js
+
+# Mobile release artifacts and local Apple build metadata.
+/release/*.apk
+/release/*.ipa
+/release/mobile-build.json

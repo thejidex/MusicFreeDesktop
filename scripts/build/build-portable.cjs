@@ -63,7 +63,7 @@ async function main() {
     else if (option === '--output') output = args.shift();
     else if (option === '--skip-package') skipPackage = true;
     else if (option === '--help') {
-      console.log('node scripts/build/build-portable.cjs [--tag v1.3] [--output DIRECTORY] [--skip-package]');
+      console.log('node scripts/build/build-portable.cjs [--tag v1.4] [--output DIRECTORY] [--skip-package]');
       console.log('Default: use the package version and save release files in ./release.');
       return;
     } else throw new Error('Unknown option: ' + option);
