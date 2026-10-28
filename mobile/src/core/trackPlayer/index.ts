@@ -790,6 +790,9 @@ class TrackPlayer extends EventEmitter<{
         plan.part = part;
         await this.setTrackSource(this.mergeTrackSource(song, source) as unknown as Track, false);
         await ReactNativeTrackPlayer.seekTo(position);
+        // setTrackSource clears the old position; save the cumulative position
+        // afterwards, including paused seeks that emit no progress events.
+        PersistStatus.set("music.progress", plan.offsets[part] + position);
         if (autoPlay) await ReactNativeTrackPlayer.play();
     }
     getRate = ReactNativeTrackPlayer.getRate;

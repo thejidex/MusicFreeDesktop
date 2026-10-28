@@ -55,6 +55,49 @@ async function main() {
     assert.equal((await collection.resolveCollection(song, async () => { throw new Error('Plugin unavailable'); })), null);
     assert.equal((await collection.resolveCollection(song, async () => ({ musicList: [{ cid: 1, duration: -1 }, { cid: 2, duration: 1 }] }))), null);
 
+    // Exercise the real controller across a paused, cross-part seek and restart.
+    const persisted = new Map();
+    const native = { position: 0, queue: [], plays: 0,
+        getPlaybackState: async () => ({ state: 'paused' }),
+        setQueue: async queue => { native.queue = queue; native.position = 0; },
+        seekTo: async position => { native.position = position; },
+        play: async () => { native.plays++; }, addEventListener: () => {},
+    };
+    const same = (a, b) => a?.platform === b?.platform && String(a?.id) === String(b?.id);
+    const controller = load('core/trackPlayer/index.ts', {
+        'react-native-track-player': { __esModule: true, default: native, State: { Playing: 'playing', Paused: 'paused' }, Event: {} },
+        '@/components/dialogs/useDialog': {},
+        '@/utils/delay': async () => {},
+        '@/constants/commonConst': { internalFakeSoundKey: 'fake', sortIndexSymbol: Symbol('sort'), timeStampSymbol: Symbol('time') },
+        '@/constants/repeatModeConst': { MusicRepeatMode: { QUEUE: 'queue', SINGLE: 'single', SHUFFLE: 'shuffle' } },
+        '@/utils/log': { errorLog: (...args) => { throw new Error(args.join(' ')); }, trace: () => {} },
+        '@/utils/mediaUtils': { isSameMediaItem: same }, '@/utils/network': {},
+        '@/utils/persistStatus': { get: key => persisted.get(key), set: (key, value) => persisted.set(key, value) },
+        '@/utils/qualities': {}, '@/utils/trackUtils': { musicIsPaused: state => state === 'paused' },
+        '../localMusicSheet': {}, '../library': { library: { apply: item => ({ ...item }) } },
+        '@/core.defination/trackPlayer': { TrackPlayerEvents: { CurrentMusicChanged: 'current', PlayEnd: 'end' } },
+        '@/constants/assetsConst': { ImgAsset: { albumDefault: 'file:///cover.png' } },
+        '@/utils/fileUtils': { resolveImportedAssetOrPath: value => value },
+    }).default;
+    const plugin = { methods: { getAlbumInfo: getAlbum, getMediaSource: async item => ({ url: `file:///part-${item.cid}.wav` }) } };
+    const inject = player => player.injectDependencies({ getConfig: key => key === 'basic.defaultPlayQuality' ? 'standard' : false }, {}, { getByMedia: () => plugin });
+    inject(controller);
+    controller.setPlayList([song]);
+    controller.setCurrentMusic(song);
+    controller.collection = await collection.resolveCollection(song, getAlbum);
+    await controller.seekTo(15);
+    assert.equal(native.position, 5);
+    assert.equal(persisted.get('music.progress'), 15, 'Paused cross-part seek must survive the source reset');
+    assert.equal(native.plays, 0);
+    const restored = new controller.constructor();
+    inject(restored);
+    await restored.setupTrackPlayer();
+    await new Promise(setImmediate);
+    assert.equal(restored.collection.part, 1);
+    assert.equal(native.queue[0].url, 'file:///part-2.wav');
+    assert.equal(restored.toCollectionProgress({ position: native.position }).position, 15);
+    assert.equal(native.plays, 0, 'Restoring paused playback must not autoplay');
+
     const virtualFiles = new Map();
     const config = new Map();
     let selected;
