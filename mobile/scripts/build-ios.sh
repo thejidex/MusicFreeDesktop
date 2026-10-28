@@ -7,7 +7,7 @@ OUTPUT="../release/MusicFree-v${VERSION}-ios-unsigned.ipa"
 [[ ! -e "$OUTPUT" ]] || { echo "Output already exists: $OUTPUT" >&2; exit 1; }
 export RCT_NEW_ARCH_ENABLED=0
 bundle exec pod install --project-directory=ios
-xcodebuild -workspace ios/MusicFree.xcworkspace -scheme MusicFreeNew \
+xcodebuild -quiet -workspace ios/MusicFree.xcworkspace -scheme MusicFreeNew \
   -configuration Release -sdk iphoneos -destination 'generic/platform=iOS' \
   -derivedDataPath out/ios/DerivedData -archivePath out/ios/MusicFree.xcarchive \
   CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY='' \

@@ -42,12 +42,10 @@ export default function SeekBar() {
                 onSlidingComplete={val => {
                     slidingRef.current = false;
                     setTmpProgress(null);
-                    if (val >= progress.duration - 2) {
-                        val = progress.duration - 2;
-                    }
+                    val = Math.max(0, Math.min(val, Math.max(0, progress.duration - 0.05)));
                     TrackPlayer.seekTo(val);
                 }}
-                value={progress.position}
+                value={tmpProgress ?? progress.position}
             />
             <TimeLabel time={progress.duration} />
         </View>

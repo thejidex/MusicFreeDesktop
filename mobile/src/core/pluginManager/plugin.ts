@@ -12,6 +12,7 @@ import { getMediaExtraProperty, patchMediaExtra } from "@/utils/mediaExtra";
 import { getLocalPath, isSameMediaItem, resetMediaItem } from "@/utils/mediaUtils";
 import notImplementedFunction from "@/utils/notImplementedFunction.ts";
 import axios from "axios";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import bigInt from "big-integer";
 import * as cheerio from "cheerio";
 import { satisfies } from "compare-versions";
@@ -55,6 +56,11 @@ const deprecatedCookieManager = {
 };
 
 const packages: Record<string, any> = {
+    "musicfree/storage": {
+        getItem: (key: string) => AsyncStorage.getItem(`musicfree-plugin:${key}`),
+        setItem: (key: string, value: unknown) => AsyncStorage.setItem(`musicfree-plugin:${key}`, String(value ?? "")),
+        removeItem: (key: string) => AsyncStorage.removeItem(`musicfree-plugin:${key}`),
+    },
     cheerio,
     "crypto-js": CryptoJs,
     axios,

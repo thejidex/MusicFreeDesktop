@@ -64,6 +64,13 @@ jobs:
       - run: npm run typecheck
       - name: Archive device app and package unsigned IPA
         run: npm run build:ios
+      - name: Launch the iOS simulator app
+        run: bash scripts/smoke-ios.sh
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: MusicFree-ios-smoke
+          path: mobile/out/ios/smoke
       - name: Record source revision
         run: |
           node -e "require('fs').writeFileSync('../release/mobile-build.json', JSON.stringify({version:require('./package.json').version.split('.').slice(0,2).join('.'),commit:process.env.GITHUB_SHA,signed:false},null,2))"
