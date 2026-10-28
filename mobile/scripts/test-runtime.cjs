@@ -22,6 +22,23 @@ function load(relative, mocks = {}) {
     return module.exports;
 }
 async function main() {
+    // Exercise the monorepo with an existing desktop build: dependency imports
+    // must keep resolving within their own package, never to Electron's main.
+    const desktopMain = path.resolve(__dirname, '../../.webpack/main/index.js');
+    const createdDesktopFixture = !fs.existsSync(desktopMain);
+    if (createdDesktopFixture) {
+        fs.mkdirSync(path.dirname(desktopMain), { recursive: true });
+        fs.writeFileSync(desktopMain, 'module.exports = {};\n');
+    }
+    try {
+        const transformed = require('@babel/core').transformSync("import TrackPlayer from '..'; TrackPlayer.play();", {
+            filename: path.resolve(__dirname, '../node_modules/react-native-track-player/src/hooks/useIsPlaying.ts'),
+            configFile: path.resolve(__dirname, '../babel.config.js'), babelrc: false,
+        }).code;
+        assert.ok(!transformed.includes('.webpack'), 'Mobile dependency was redirected into the Electron application');
+    } finally {
+        if (createdDesktopFixture) fs.unlinkSync(desktopMain);
+    }
     const collection = load('core/trackPlayer/collection.ts');
     const song = { platform: 'bilibili', id: 'video', bvid: 'BV-test', title: 'Collection' };
     const getAlbum = async () => ({ isEnd: true, musicList: [{ id: 'part-a', cid: 1, duration: 10 }, { id: 'part-b', cid: 2, duration: 20 }] });

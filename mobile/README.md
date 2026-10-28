@@ -4,7 +4,7 @@
 
 ## 发布状态
 
-目标版本为 **v1.4**，内部 npm 版本为 `1.4.0`。原生构建、设备运行及功能验收完成前，请将本工程视为待验证的移植版本，不要仅凭存在 `android/`、`ios/` 或构建脚本认定可以发布。
+首次移动端发行版本为 **v1.4**，内部 npm 版本为 `1.4.0`，按**移动移植预览**提供。构建结果、模拟器／真机验证范围和已知限制以 Release 附带的验证报告为准；构建脚本本身不代表设备功能已经验收。
 
 ## 手机操作
 
@@ -46,7 +46,7 @@ npm run build:android
 
 ## 构建 iOS
 
-需要 macOS、Xcode、Node.js 22、Ruby、Bundler 和 CocoaPods；Windows 本机无法编译 iOS 原生程序。最低系统版本由 React Native 的 `min_ios_version_supported` 决定。
+需要 macOS、Xcode、Node.js 22、Ruby、Bundler 和 CocoaPods；Windows 本机无法编译 iOS 原生程序。最低 iOS 15.1。
 
 ```sh
 npm ci --ignore-scripts

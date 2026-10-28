@@ -5,15 +5,19 @@
 
 基于 [猫头猫（maotoumao）的 MusicFreeDesktop](https://github.com/maotoumao/MusicFreeDesktop) 的个人 Fork，由 [thejidex](https://github.com/thejidex) 维护。保留原项目的插件化播放、歌单和主题功能，改进日常播放与歌曲管理体验。本仓库并非原作者的官方发行版。
 
-**当前版本：v1.3**，基于 MusicFreeDesktop 0.0.8。便携包面向 **Windows x64**；其他平台源码保留，但本版本未验证其构建和运行。
+**当前版本：v1.4**，桌面端基于 MusicFreeDesktop 0.0.8，便携包面向 **Windows x64**；新增 **Android arm64** 和 **iOS 未签名 IPA** 移动移植预览。手机端以系统支持的对应操作提供桌面功能，平台差异与验证范围见下方说明。
 
 [下载发布版](https://github.com/thejidex/MusicFreeDesktop/releases) · [反馈问题](https://github.com/thejidex/MusicFreeDesktop/issues) · [更新记录](./docs/changelog.md) · [上游仓库](https://github.com/maotoumao/MusicFreeDesktop)
 
 ## Android 与 iOS 移植
 
-正在准备 v1.4 移动端版本。独立工程、手机端操作、平台差异及构建方法见 [mobile/README.md](./mobile/README.md)。iOS 的交付目标是由使用者自行签名安装的未签名 IPA。原生构建和设备验收完成前，不将移动端标为正式可发布。
+v1.4 增加独立的 React Native 移动工程。手机端操作、平台差异和构建方法见 [mobile/README.md](./mobile/README.md)。首次移动端发行按移植预览提供，构建及设备验证范围以随包报告为准。**iOS IPA 未签名，需要使用者自行签名安装，不能下载后直接安装，也不包含 App Store／TestFlight 上架。**
 
 ## 本次更新
+
+v1.4 新增移动端源码及 Android／iOS 构建流程，移植歌曲编辑、播放次数、歌词补全和繁转简、B 站合集及仓库主题。Windows 继续保留下述功能。
+
+## v1.3 改进
 
 v1.3 增加歌曲列表和右侧播放队列的上下键选择：先左键选中一首歌，再按 `↑` 或 `↓` 按当前显示顺序选中上一首或下一首歌曲，列表自动滚动到选中项；到达首尾时停止。选择变化不会切歌，输入框和其他控件保持原有按键行为。
 
@@ -64,11 +68,13 @@ v1.2 在 v1.1.1 的基础上增加以下功能：
 
 在 [Releases](https://github.com/thejidex/MusicFreeDesktop/releases) 对应版本的 **Assets** 中下载，实际已发布的版本以该页面为准：
 
-- `MusicFree-v1.3-win-x64.exe`：双击自动解压并启动，无需安装。
-- `MusicFree-v1.3-win-x64.zip`：完整解压后运行其中的 `MusicFree.exe`。
-- `SHA256SUMS-v1.3.txt`：用于核对下载文件的 SHA-256。
+- `MusicFree-v1.4-win-x64.exe`：双击自动解压并启动，无需安装。
+- `MusicFree-v1.4-win-x64.zip`：完整解压后运行其中的 `MusicFree.exe`。
+- `SHA256SUMS-v1.4.txt`：用于核对下载文件的 SHA-256。
+- `MusicFree-v1.4-android-arm64.apk`：Android 7.0 及以上的 arm64 手机，允许对应文件管理器安装后打开。
+- `MusicFree-v1.4-ios-unsigned.ipa`：iOS 15.1 及以上的未签名包，需要另行签名。
 
-将 EXE 放在普通的可写文件夹。首次运行会在旁边生成 `MusicFree-v1.3` 文件夹，以后也可直接运行其中的 `MusicFree.exe`。**请保留整个程序文件夹**，其中的 `portable` 保存歌单、插件、主题、设置、播放次数、缓存和日志。歌曲默认下载到 `portable/downloads`，可在设置中更改。
+将 EXE 放在普通的可写文件夹。首次运行会在旁边生成 `MusicFree-v1.4` 文件夹，以后也可直接运行其中的 `MusicFree.exe`。**请保留整个程序文件夹**，其中的 `portable` 保存歌单、插件、主题、设置、播放次数、缓存和日志。歌曲默认下载到 `portable/downloads`，可在设置中更改。
 
 发布包不预装第三方音源插件，也不包含个人歌单、账号或配置。安装插件后再搜索和播放，可参考 [MusicFree 文档](https://musicfree.catcat.work/) 与 [插件示例](https://github.com/maotoumao/MusicFreePlugins)。仓库随附供下载者使用的主题包，下载仓库后可按下方说明安装主题。
 
@@ -133,7 +139,7 @@ npm run test:music-list-navigation
 npm run build:release
 ```
 
-构建脚本从当前源码生成程序，当前标签为 `v1.3`。界面、发布文件名和 Git 标签统一使用 `x.x`，后续依次使用 `v1.4`、`v1.5` 等；npm 内部元数据使用 `x.x.0` 以兼容工具链，不作为对外版本名称。最终 EXE、ZIP 和校验文件位于根目录 `release/`；构建清单及临时文件位于 `out/` 和 `.webpack/`，避免混入交付目录。自动解压启动器使用 Windows 自带的 .NET Framework C# 编译器；原生依赖如需编译，还需对应的 C++ 构建工具。
+构建脚本从当前源码生成程序，当前标签为 `v1.4`。界面、发布文件名和 Git 标签统一使用 `x.x`，后续依次使用 `v1.5`、`v1.6` 等；npm 内部元数据使用 `x.x.0` 以兼容工具链，不作为对外版本名称。最终 EXE、ZIP 和校验文件位于根目录 `release/`；构建清单及临时文件位于 `out/` 和 `.webpack/`，避免混入交付目录。自动解压启动器使用 Windows 自带的 .NET Framework C# 编译器；原生依赖如需编译，还需对应的 C++ 构建工具。
 
 同名发布文件存在时脚本会停止，以避免覆盖；更新版本时同步修改 `package.json`、`package-lock.json` 中的内部版本与 `release/version.json` 中的两段版本号。清理旧包前先检查是否仍需保留，尤其不要删除使用中的 `portable` 数据。上传 GitHub 前可删除本机的 `node_modules/`、`out/` 和 `.webpack/`，需要开发时执行 `npm ci` 即可重新生成依赖。
 
