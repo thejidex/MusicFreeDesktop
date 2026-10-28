@@ -7,8 +7,11 @@ OUTPUT="$PWD/../release/MusicFree-v${VERSION}-ios-unsigned.ipa"
 [[ ! -e "$OUTPUT" ]] || { echo "Output already exists: $OUTPUT" >&2; exit 1; }
 export RCT_NEW_ARCH_ENABLED=0
 node scripts/collect-notices.cjs
-bundle exec pod install --project-directory=ios
 bash scripts/ensure-ios-hermes.sh
+RN_VERSION=$(node -p "require('./node_modules/react-native/package.json').version")
+# A failed remote HEAD probe must never silently select Hermes's latest main.
+export HERMES_ENGINE_TARBALL_PATH="$PWD/ios/Pods/hermes-engine-artifacts/hermes-ios-$RN_VERSION-release.tar.gz"
+bundle exec pod install --project-directory=ios
 xcodebuild -quiet -workspace ios/MusicFree.xcworkspace -scheme MusicFreeNew \
   -configuration Release -sdk iphoneos -destination 'generic/platform=iOS' \
   -derivedDataPath out/ios/DerivedData -archivePath out/ios/MusicFree.xcarchive \
