@@ -1,4 +1,8 @@
 {
-  "name": "MusicFree",
-  "displayName": "MusicFree"
+  "expo": {
+    "name": "MusicFree",
+    "slug": "musicfree",
+    "version": "1.5.0",
+    "newArchEnabled": false
+  }
 }

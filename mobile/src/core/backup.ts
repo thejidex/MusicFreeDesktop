@@ -1,86 +1,47 @@
-/** 备份与恢复 */
-/** 歌单、插件 */
-import { library } from "./library";
-import { compare } from "compare-versions";
-import PluginManager from "./pluginManager";
-import MusicSheet from "@/core/musicSheet";
+import {
+    createMobileExchangeDocument,
+    importMobileExchange,
+    previewMobileExchange,
+    saveMobileExchangePreview,
+} from "./playlistExchange";
 import { ResumeMode } from "@/constants/commonConst.ts";
 
-/**
- * 结果：一份大的json文件
- * {
- *     musicSheets: [],
- *     plugins: [],
- * }
- */
-
-interface IBackJson {
-    library?: Record<string, string>;
-    musicSheets: IMusic.IMusicSheetItem[];
-    plugins: Array<{ srcUrl: string; version: string }>;
-}
-
 function backup() {
-    const musicSheets = MusicSheet.backupSheets();
-    const plugins = PluginManager.getEnabledPlugins();
-    const normalizedPlugins = plugins.map(_ => ({
-        srcUrl: _.instance.srcUrl,
-        version: _.instance.version,
-    }));
-
-    return JSON.stringify({
-        musicSheets: musicSheets,
-        library: library.snapshot(),
-        plugins: normalizedPlugins,
-    });
+    return JSON.stringify(createMobileExchangeDocument());
 }
 
 async function resume(
     raw: string | Object,
     resumeMode: ResumeMode = ResumeMode.Append,
 ) {
-    let obj: IBackJson;
-    if (typeof raw === "string") {
-        try {
-            obj = JSON.parse(raw);
-        } catch {
-            throw new Error("备份文件格式无效");
+    const preview = previewMobileExchange(raw);
+    const decisions: Record<string, { action: "merge" | "replace"; targetSheetId: string }> = Object.fromEntries(preview.matchedPlaylists.map(match => [match.sourceSheetId, {
+        action: resumeMode === ResumeMode.Overwrite ? "replace" : "merge",
+        targetSheetId: match.targetSheetId,
+    }]));
+    if (resumeMode === ResumeMode.OverwriteDefault) {
+        const favorite = preview.document.playlists.find(playlist => playlist.isFavorite);
+        if (favorite) {
+            decisions[favorite.sourceSheetId] = {
+                action: "replace",
+                targetSheetId: decisions[favorite.sourceSheetId]?.targetSheetId ||
+                    preview.matchedPlaylists.find(match => match.sourceSheetId === favorite.sourceSheetId)!.targetSheetId,
+            };
         }
-    } else {
-        obj = raw as IBackJson;
     }
-
-    const { plugins, musicSheets } = obj ?? {};
-    if (!Array.isArray(musicSheets)) throw new Error("备份文件缺少有效歌单");
-    if (obj.library) library.restore(obj.library);
-    /** 恢复插件 */
-    const validPlugins = PluginManager.getEnabledPlugins();
-    const resumePlugins = plugins?.map(_ => {
-        // 校验是否安装过: 同源且本地版本更高就忽略掉
-        if (
-            validPlugins.find(
-                plugin =>
-                    plugin.instance.srcUrl === _.srcUrl &&
-                    compare(
-                        plugin.instance.version ?? "0.0.0",
-                        _.version ?? "0.0.1",
-                        ">=",
-                    ),
-            )
-        ) {
-            return;
-        }
-        return PluginManager.installPluginFromUrl(_.srcUrl);
+    return importMobileExchange(preview, {
+        decisions,
+        metadataConflict: "keep-device",
+        playCount: "keep-device",
+        installMissingPlugins: true,
     });
-
-    /** 恢复歌单 */
-    const resumeMusicSheets = MusicSheet.resumeSheets(musicSheets, resumeMode);
-
-    return Promise.all([...(resumePlugins ?? []), resumeMusicSheets]);
 }
 
 const Backup = {
     backup,
     resume,
+    previewExchange: previewMobileExchange,
+    importExchange: importMobileExchange,
+    saveExchangePreview: saveMobileExchangePreview,
 };
 export default Backup;

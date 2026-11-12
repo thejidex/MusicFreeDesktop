@@ -1,7 +1,7 @@
 {
   "name": "musicfree-desktop",
   "productName": "MusicFree",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "description": "一个插件化的音乐播放器",
   "main": ".webpack/main",
   "scripts": {
@@ -19,8 +19,11 @@
     "prepare": "husky install",
     "test:play-counts": "electron scripts/tests/play-counts.cjs",
     "test:music-list-navigation": "electron scripts/tests/music-list-navigation.cjs",
+    "test:playlist-exchange": "node scripts/tests/playlist-exchange.cjs",
+    "test:playlist-exchange:desktop": "node scripts/tests/playlist-exchange-desktop-import.cjs",
+    "test:playlist-exchange:transport": "node scripts/tests/playlist-exchange-transport.cjs",
     "mobile:install": "npm ci --prefix mobile --ignore-scripts",
-    "mobile:check": "npm run --prefix mobile typecheck && npm run --prefix mobile test:library && npm run --prefix mobile test:runtime",
+    "mobile:check": "npm run --prefix mobile typecheck && npm run --prefix mobile test:library && npm run --prefix mobile test:runtime && npm run --prefix mobile test:exchange",
     "build:android": "npm run --prefix mobile build:android",
     "build:ios": "npm run --prefix mobile build:ios"
   },
@@ -120,6 +123,7 @@
     "object-path": "^0.11.8",
     "opencc-js": "1.4.2",
     "p-queue": "^7.4.1",
+    "qrcode": "^1.5.4",
     "qs": "^6.12.1",
     "rc-slider": "^10.6.2",
     "react": "^18.3.1",

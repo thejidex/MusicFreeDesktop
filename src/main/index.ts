@@ -21,6 +21,7 @@ import utils from "@shared/utils/main";
 import messageBus from "@shared/message-bus/main";
 import shortCut from "@shared/short-cut/main";
 import voidCallback from "@/common/void-callback";
+import PlaylistExchangeTransport from "@shared/playlist-exchange/main";
 
 // portable
 if (process.platform === "win32") {
@@ -113,6 +114,7 @@ app.whenReady().then(async () => {
         },
     });
     utils.setup(windowManager);
+    PlaylistExchangeTransport.setup();
     PluginManager.setup(windowManager);
     TrayManager.setup(windowManager);
     WindowDrag.setup();

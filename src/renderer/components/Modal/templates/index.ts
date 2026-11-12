@@ -12,6 +12,7 @@ import SimpleInputWithState from "./SimpleInputWithState";
 import Sparkles from "./Sparkles";
 import Update from "./Update";
 import WatchLocalDir from "./WatchLocalDir";
+import SendToPhone from "./SendToPhone";
 
 export default {
     Base,
@@ -28,4 +29,5 @@ export default {
     PluginSubscription,
     SearchLyric,
     ImportMusicSheet,
+    SendToPhone,
 };

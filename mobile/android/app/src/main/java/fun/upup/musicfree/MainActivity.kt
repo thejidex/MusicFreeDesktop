@@ -7,6 +7,7 @@ import com.facebook.react.ReactActivityDelegate
 import com.facebook.react.defaults.DefaultNewArchitectureEntryPoint.fabricEnabled
 import com.facebook.react.defaults.DefaultReactActivityDelegate
 import android.os.Bundle
+import android.content.Intent
 
 class MainActivity : ReactActivity() {
 
@@ -27,5 +28,12 @@ class MainActivity : ReactActivity() {
   override fun onCreate(savedInstanceState: Bundle?) {
       SplashScreenManager.registerOnActivity(this)
       super.onCreate(null);
+  }
+
+  override fun onNewIntent(intent: Intent) {
+      super.onNewIntent(intent)
+      setIntent(intent)
+      val reactContext = (application as MainApplication).reactNativeHost.reactInstanceManager.currentReactContext
+      reactContext?.getNativeModule(PlaylistShareModule::class.java)?.dispatchSharedIntent(intent)
   }
 }

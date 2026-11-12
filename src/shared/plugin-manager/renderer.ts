@@ -88,6 +88,10 @@ function getPluginByPlatform(platform: string) {
     return delegatePluginsStore.getValue().find((item) => item.platform === platform);
 }
 
+function getAllPlugins() {
+    return delegatePluginsStore.getValue();
+}
+
 function isSupportFeatureMethod(platform: string, featureMethod: keyof IPlugin.IPluginInstanceMethods) {
     if (!platform) {
         return false;
@@ -117,6 +121,7 @@ const PluginManager = {
     getSortedSearchablePlugins,
     getPluginByHash,
     getPluginByPlatform,
+    getAllPlugins,
     isSupportFeatureMethod,
     getPluginPrimaryKey,
     callPluginDelegateMethod: mod.callPluginMethod,

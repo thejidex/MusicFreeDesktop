@@ -4,7 +4,9 @@
 
 ## 发布状态
 
-首次移动端发行版本为 **v1.4**，内部 npm 版本为 `1.4.0`，按**移动移植预览**提供。构建结果、模拟器／真机验证范围和已知限制以 Release 附带的验证报告为准；构建脚本本身不代表设备功能已经验收。
+当前移动端开发基线为 **v1.5**，内部 npm 版本为 `1.5.0`。本轮在现有工程上增加电脑歌单扫码接收、粘贴连接、文件分享导入和统一预览／合并；构建结果、模拟器／真机验证范围和已知限制以 Release 附带的验证报告为准。构建脚本本身不代表设备功能已经验收。
+
+使用流程和导入规则见仓库的[手机歌单分享说明](../docs/releases/手机歌单分享说明-v1.5.md)；设备验证和未完成项见[验证报告](../docs/releases/验证报告-v1.5.md)。
 
 ## 手机操作
 
@@ -16,6 +18,9 @@
 - B 站合集需要插件返回完整分集及有效时长，保持一个队列项，连续播放并按累计时间定位。明确指定 `cid` 的歌曲仍只播放该分集。
 - 设置 → 主题 → 安装 `.mftheme`：支持仓库的 8 款静态主题与 3 款动态主题。手机使用对应配色和背景，不依赖桌面 CSS 布局。主题包保存在各设备的应用沙箱中。
 - 本地音乐菜单 → 从文件导入音乐：使用系统文件选择器复制到应用目录；原始音频文件不被修改。
+- 设置 → 歌单交换 → 从电脑接收：扫码或粘贴电脑临时传输地址，校验所选歌单后预览插件、歌曲与合并选项；也可通过系统“打开方式／分享至 MusicFree”或文件选择器导入同一格式。
+- 桌面端歌单菜单 → 发送到手机：支持选中歌单或全部歌单，局域网传输使用有时效的一次性会话；不要求账号、手工输入 IP 或 WebDAV。离线可用 JSON 文件导入；当前文件不携带本地音频，只有局域网传输可选择同时发送本地音频。
+- 重复接收按设备与歌单来源 ID 合并，不以名称判定；保留手机编辑和播放次数，可在预览中选择电脑字段，导入失败会恢复快照。在线歌曲由手机插件重新解析音源；未随包发送的本地歌曲会标记为需要补充文件。
 
 ## 平台对应关系
 
@@ -30,7 +35,7 @@
 
 ## 构建 Android
 
-需要 Node.js 22、JDK 17、Android SDK 35 / Build Tools 35.0.0、NDK 26.1.10909125 与 CMake 3.22.1。设置 `ANDROID_HOME` 后：
+需要 Node.js `>=20.19.4`（推荐 Node.js 22）、JDK 17、Android SDK／Build Tools 36.0.0、NDK 28.2.13676358 与 CMake 3.22.1。设置 `ANDROID_HOME` 后：
 
 ```sh
 npm ci --ignore-scripts
@@ -40,9 +45,11 @@ npm run test:runtime
 npm run build:android
 ```
 
-发布构建必须提供固定的签名密钥，避免后续版本无法覆盖安装。通过环境变量提供 `MUSICFREE_ANDROID_KEYSTORE`、`MUSICFREE_ANDROID_STORE_PASSWORD`、`MUSICFREE_ANDROID_KEY_ALIAS`、`MUSICFREE_ANDROID_KEY_PASSWORD`；也可将 `MUSICFREE_ANDROID_SIGNING_FILE` 指向仓库外的 JSON，字段为 `storeFile`、`storePassword`、`keyAlias`、`keyPassword`。密钥与密码都不能提交 Git 或附在 Releases 中。
+`build:android` 会先应用有版本校验的 RNTP／FlashList Android 兼容补丁，再检查 APK 内每个 `.so` 的 ELF `PT_LOAD` 对齐、Android `zipalign -c -P 16` 以及签名证书是否与 v1.4 一致。v1.5 arm64 签名 APK 的 18 个原生库均通过 16 KB 对齐检查，ZIP 检查和签名检查通过；本机没有可用的 Windows Hyper-V／WHPX 加速，尚未完成模拟器运行和真机 16 KB 启动验证。
 
-默认生成 `release/MusicFree-v1.4-android-arm64.apk` 和独立的 SHA-256 文件。安装时允许相应文件管理器安装来源不明应用。仅 arm64 架构，最低 Android 7.0；本次预览要求 4KB 内存页，当前原生依赖不支持 16KB 内存页设备。通过 `MUSICFREE_ANDROID_ARCH` 可另外构建 `armeabi-v7a` 或 `x86_64`。同名文件存在时脚本停止，防止覆盖既有交付。
+发布构建必须提供与 v1.4 相同的持久签名密钥，确保能够覆盖安装旧 APK 并保留用户数据。通过环境变量提供 `MUSICFREE_ANDROID_KEYSTORE`、`MUSICFREE_ANDROID_STORE_PASSWORD`、`MUSICFREE_ANDROID_KEY_ALIAS`、`MUSICFREE_ANDROID_KEY_PASSWORD`；也可将 `MUSICFREE_ANDROID_SIGNING_FILE` 指向仓库外的 JSON，字段为 `storeFile`、`storePassword`、`keyAlias`、`keyPassword`。密钥与密码都不能提交 Git 或附在 Releases 中。
+
+默认生成 `release/MusicFree-v1.5-android-arm64.apk` 和独立的 SHA-256 文件。安装时允许相应文件管理器安装来源不明应用。默认仅 arm64 架构，最低 Android 7.0（API 24）；使用 `MUSICFREE_ANDROID_ARCH` 可另外构建 `armeabi-v7a` 或 `x86_64`。同名文件存在时脚本停止，防止覆盖既有交付。
 
 ## 构建 iOS
 
@@ -54,7 +61,7 @@ bundle install
 npm run build:ios
 ```
 
-脚本以 `CODE_SIGNING_ALLOWED=NO` 构建真机 arm64 应用并生成 `release/MusicFree-v1.4-ios-unsigned.ipa`。无需发布者的 Apple 账号；**未签名 IPA 无法直接安装到普通 iPhone**，使用者需要自行签名。此交付不包含 TestFlight 或 App Store 上架。
+脚本以 `CODE_SIGNING_ALLOWED=NO` 构建真机 arm64 应用并生成 `release/MusicFree-v1.5-ios-unsigned.ipa`。无需发布者的 Apple 账号；**未签名 IPA 无法直接安装到普通 iPhone**，使用者需要自行签名。此交付不包含 TestFlight 或 App Store 上架。
 
 仓库的 **Mobile** 工作流在 macOS 上执行同一脚本，成功后下载 `MusicFree-ios-unsigned` artifact。Android CI 产物明确标为未签名验证包，不能替代本机持久密钥签名的 APK。
 

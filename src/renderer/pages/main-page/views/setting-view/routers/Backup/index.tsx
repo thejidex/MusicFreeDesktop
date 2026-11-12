@@ -1,18 +1,24 @@
 import "./index.scss";
 import MusicSheet from "@/renderer/core/music-sheet";
 import { toast } from "react-toastify";
-import RadioGroupSettingItem from "../../components/RadioGroupSettingItem";
 import InputSettingItem from "../../components/InputSettingItem";
 import { AuthType, createClient } from "webdav";
 import BackupResume from "@/renderer/core/backup-resume";
 import { useTranslation } from "react-i18next";
 import AppConfig from "@shared/app-config/renderer";
 import { dialogUtil, fsUtil } from "@shared/utils/renderer";
+import { createDesktopExchangeDocument } from "@/renderer/core/playlist-exchange";
+import { showModal } from "@/renderer/components/Modal";
 
 
 
 export default function Backup() {
     const { t } = useTranslation();
+
+    async function createBackupJson() {
+        const sheets = MusicSheet.frontend.getAllSheets();
+        return JSON.stringify(await createDesktopExchangeDocument(sheets.map(sheet => sheet.id)));
+    }
 
 
     async function onBackupClick() {
@@ -29,15 +35,7 @@ export default function Backup() {
                     username: username,
                     password: password,
                 });
-                const sheetDetails =
-                    await MusicSheet.frontend.exportAllSheetDetails();
-                const backUp = JSON.stringify(
-                    {
-                        musicSheets: sheetDetails,
-                    },
-                    undefined,
-                    0,
-                );
+                const backUp = await createBackupJson();
                 if (!(await client.exists("/MusicFree"))) {
                     await client.createDirectory("/MusicFree");
                 }
@@ -90,8 +88,7 @@ export default function Backup() {
                     },
                 );
                 await BackupResume.resume(
-                    resumeData,
-                    AppConfig.getConfig("backup.resumeBehavior") === "overwrite",
+                                    resumeData,
                 );
                 toast.success(t("settings.backup.resume_success"));
             } else {
@@ -109,14 +106,6 @@ export default function Backup() {
 
     return (
         <div className="setting-view--backup-container">
-            <RadioGroupSettingItem
-                keyPath="backup.resumeBehavior"
-                options={[
-                    "append",
-                    "overwrite",
-                ]}
-                renderItem={(item) => t("settings.backup.resume_mode_" + item)}
-            ></RadioGroupSettingItem>
             <div className={"label-container"}>
                 {t("settings.backup.backup_by_file")}
             </div>
@@ -136,17 +125,20 @@ export default function Backup() {
                             title: t("settings.backup.backup_to"),
                         });
                         if (!result.canceled && result.filePath) {
-                            const sheetDetails =
-                                await MusicSheet.frontend.exportAllSheetDetails();
-                            const backUp = JSON.stringify({
-                                musicSheets: sheetDetails,
-                            });
+                            const backUp = await createBackupJson();
                             await fsUtil.writeFile(result.filePath, backUp, "utf-8");
                             toast.success(t("settings.backup.backup_success"));
                         }
                     }}
                 >
                     {t("settings.backup.backup_music_sheet")}
+                </div>
+                <div
+                    role="button"
+                    data-type="normalButton"
+                    onClick={() => showModal("SendToPhone")}
+                >
+                    发送歌单到手机
                 </div>
                 <div
                     role="button"
@@ -171,7 +163,6 @@ export default function Backup() {
 
                                 await BackupResume.resume(
                                     rawSheets,
-                                    AppConfig.getConfig("backup.resumeBehavior") === "overwrite",
                                 );
 
                                 toast.success(t("backup.backup_success"));

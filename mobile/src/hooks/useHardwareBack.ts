@@ -5,7 +5,7 @@ export default function (
     onHardwareBackPress: () => boolean | null | undefined,
     deps: any[] = [],
 ) {
-    const backHandlerRef = useRef<NativeEventSubscription>();
+    const backHandlerRef = useRef<NativeEventSubscription | undefined>(undefined);
     useEffect(() => {
         if (backHandlerRef.current) {
             backHandlerRef.current.remove();

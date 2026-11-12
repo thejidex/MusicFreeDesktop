@@ -65,7 +65,7 @@ export default function MusicList(props: IMusicListProps) {
         else if (selected) setSelected(null);
     }, [selectedIndex, musicList]);
     const [showBadge, setShowBadge] = useState(false);
-    const hideTimeoutRef = useRef<NodeJS.Timeout>();
+    const hideTimeoutRef = useRef<NodeJS.Timeout | undefined>(undefined);
 
     // 查找高亮项的索引
     const highlightIndex = React.useMemo(() => {

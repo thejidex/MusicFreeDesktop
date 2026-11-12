@@ -5,6 +5,7 @@ export interface StringStorage {
     getString(key: string): string | undefined;
     getAllKeys?(): string[];
     set(key: string, value: string): void;
+    delete?(key: string): void;
 }
 export const songKey = (song: SongIdentity) => JSON.stringify([song.platform, String(song.id)]);
 
@@ -46,6 +47,16 @@ export class LibraryData {
         }
         this.changed();
     }
+    replaceSnapshotExact(snapshot: Record<string, string>) {
+        const allowed = new Set(Object.keys(snapshot ?? {}).filter(key => /^(edits|count):/.test(key)));
+        for (const key of this.storage.getAllKeys?.() ?? []) {
+            if (/^(edits|count):/.test(key) && !allowed.has(key)) this.storage.delete?.(key);
+        }
+        for (const [key, value] of Object.entries(snapshot ?? {})) {
+            if (allowed.has(key) && typeof value === "string") this.storage.set(key, value);
+        }
+        this.changed();
+    }
     count(song: SongIdentity) {
         const count = Number(this.storage.getString(`count:${songKey(song)}`) || 0);
         return Number.isSafeInteger(count) && count >= 0 ? count : 0;
@@ -56,6 +67,11 @@ export class LibraryData {
         this.storage.set(`count:${songKey(song)}`, String(count));
         this.changed();
         return count;
+    }
+    setCount(song: SongIdentity, count: number) {
+        if (!Number.isSafeInteger(count) || count < 0) throw new Error("播放次数无效");
+        this.storage.set(`count:${songKey(song)}`, String(count));
+        this.changed();
     }
 }
 

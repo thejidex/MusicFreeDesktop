@@ -9,24 +9,27 @@ import { showDialog } from "@/components/dialogs/useDialog";
 import { showPanel } from "@/components/panels/usePanel";
 import axios from "axios";
 
-import { ResumeMode } from "@/constants/commonConst.ts";
 import Config, { useAppConfig } from "@/core/appConfig";
 import { useI18N } from "@/core/i18n";
-import delay from "@/utils/delay";
 import { writeInChunks } from "@/utils/fileUtils.ts";
 import { errorLog } from "@/utils/log.ts";
 import { getDocumentAsync } from "expo-document-picker";
-import { readAsStringAsync } from "expo-file-system";
+import { readAsStringAsync } from "expo-file-system/legacy";
 import { AuthType, createClient } from "webdav";
 
 export default function BackupSetting() {
     const { t } = useI18N();
     const navigate = useNavigate();
 
-    const resumeMode = useAppConfig("backup.resumeMode");
     const webdavUrl = useAppConfig("webdav.url");
     const webdavUsername = useAppConfig("webdav.username");
     const webdavPassword = useAppConfig("webdav.password");
+
+    function openImportPreview(raw: string | unknown) {
+        const preview = Backup.previewExchange(raw);
+        const previewId = Backup.saveExchangePreview(preview);
+        navigate(ROUTE_PATH.PLAYLIST_EXCHANGE_PREVIEW, { previewId });
+    }
 
 
     const onBackupToLocal = async () => {
@@ -77,31 +80,7 @@ export default function BackupSetting() {
                 return;
             }
             const result = await readAsStringAsync(pickResult.assets[0].uri);
-            return new Promise(resolve => {
-                showDialog("LoadingDialog", {
-                    title: t("backupAndResume.resumeFromLocalFile"),
-                    loadingText: t("backupAndResume.resuming"),
-                    async task() {
-                        await delay(300, false);
-                        return Backup.resume(result, resumeMode);
-                    },
-                    onResolve(_, hideDialog) {
-                        Toast.success(t("toast.resumeSuccess"));
-                        hideDialog();
-                        resolve(true);
-                    },
-                    onCancel(hideDialog) {
-                        hideDialog();
-                        resolve(false);
-                    },
-                    onReject(reason, hideDialog) {
-                        hideDialog();
-                        resolve(false);
-                        console.log(reason);
-                        Toast.warn(t("toast.resumeFail", { reason: reason?.message ?? reason }));
-                    },
-                });
-            });
+            openImportPreview(result);
         } catch (e: any) {
             errorLog("恢复失败", e);
             Toast.warn(t("toast.resumeFail", { reason: e?.message ?? e }));
@@ -116,14 +95,12 @@ export default function BackupSetting() {
             async onOk(text, closePanel) {
                 try {
                     const url = text.trim();
-                    if (url.endsWith(".json") || url.endsWith(".txt")) {
-                        const raw = (await axios.get(text)).data;
-                        await Backup.resume(raw, resumeMode);
-                        Toast.success(t("toast.resumeSuccess"));
-                        closePanel();
-                    } else {
+                    if (!/^https?:\/\//i.test(url)) {
                         throw "无效的URL";
                     }
+                    const raw = (await axios.get(url)).data;
+                    openImportPreview(raw);
+                    closePanel();
                 } catch (e: any) {
                     Toast.warn(t("toast.resumeFail", { reason: e?.message ?? e }));
                 }
@@ -158,11 +135,7 @@ export default function BackupSetting() {
                     format: "text",
                 },
             );
-            await Backup.resume(
-                resumeData,
-                Config.getConfig("backup.resumeMode"),
-            );
-            Toast.success(t("toast.resumeSuccess"));
+            openImportPreview(resumeData);
         } catch (e: any) {
             Toast.warn(t("toast.resumeFail", { reason: e?.message ?? e }));
         }
@@ -205,41 +178,11 @@ export default function BackupSetting() {
         <ScrollView style={style.wrapper}>
             <ListItemHeader>{t("sidebar.backupAndResume")}</ListItemHeader>
 
-            <ListItem
-                withHorizontalPadding
-                onPress={() => {
-                    showDialog("RadioDialog", {
-                        title: t("backupAndResume.setResumeMode"),
-                        content: [
-                            {
-                                label: t(("backupAndResume.resumeMode." + ResumeMode.Append) as any),
-                                value: ResumeMode.Append,
-                            },
-                            {
-                                label: t(("backupAndResume.resumeMode." + ResumeMode.OverwriteDefault) as any),
-                                value: ResumeMode.OverwriteDefault,
-                            },
-                            {
-                                label: t(("backupAndResume.resumeMode." + ResumeMode.Overwrite) as any),
-                                value: ResumeMode.Overwrite,
-                            },
-                        ],
-                        onOk(value) {
-                            Config.setConfig(
-                                "backup.resumeMode",
-                                value as any,
-                            );
-                        },
-                    });
-                }}>
-                <ListItem.Content title={t("backupAndResume.resumeMode")} />
-                <ListItem.ListItemText>
-                    {
-                        t(("backupAndResume.resumeMode." + ((resumeMode as ResumeMode) ||
-                            ResumeMode.Append)) as any)
-                    }
-                </ListItem.ListItemText>
+            <ListItemHeader>电脑歌单接收</ListItemHeader>
+            <ListItem withHorizontalPadding onPress={() => navigate(ROUTE_PATH.PLAYLIST_EXCHANGE_RECEIVE)}>
+                <ListItem.Content title="从电脑接收（扫码或粘贴连接地址）" />
             </ListItem>
+
             <ListItemHeader>{t("backupAndResume.localBackup")}</ListItemHeader>
             <ListItem withHorizontalPadding onPress={onBackupToLocal}>
                 <ListItem.Content title={t("backupAndResume.backupToLocal")} />

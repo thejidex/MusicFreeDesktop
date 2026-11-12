@@ -1,5 +1,6 @@
 const {getDefaultConfig} = require('expo/metro-config');
 const {mergeConfig} = require('@react-native/metro-config');
+const path = require('path');
 
 /**
  * Reference: https://github.com/software-mansion/react-native-svg/blob/main/USAGE.md
@@ -13,6 +14,8 @@ const {assetExts, sourceExts} = defaultConfig.resolver;
  * @type {import('metro-config').MetroConfig}
  */
 const config = {
+    // The wire format is shared with the Electron application and has no native dependencies.
+    watchFolders: [path.resolve(__dirname, '../src/shared/playlist-exchange')],
     transformer: {
         babelTransformerPath: require.resolve('react-native-svg-transformer'),
     },

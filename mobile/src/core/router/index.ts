@@ -46,6 +46,10 @@ export const ROUTE_PATH = {
     SET_CUSTOM_THEME: "set-custom-theme",
     /** 权限管理 */
     PERMISSIONS: "permissions",
+    /** 歌单交换预览 */
+    PLAYLIST_EXCHANGE_PREVIEW: "playlist-exchange-preview",
+    /** 从电脑接收歌单 */
+    PLAYLIST_EXCHANGE_RECEIVE: "playlist-exchange-receive",
 } as const;
 
 type ValueOf<T> = T[keyof T];
@@ -102,6 +106,10 @@ interface RouterParams extends RouterParamsBase {
         pluginHash?: string;
         sheetInfo: IMusic.IMusicSheetItemBase;
     };
+    "playlist-exchange-preview": {
+        previewId: string;
+    };
+    "playlist-exchange-receive": undefined;
 }
 
 /** 路由参数Hook */

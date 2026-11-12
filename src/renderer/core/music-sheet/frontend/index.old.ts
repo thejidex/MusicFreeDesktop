@@ -15,6 +15,7 @@ export const useAllSheets = musicSheetsStore.useValue;
 export const useAllStarredSheets = starredSheetsStore.useValue;
 
 export const getAllSheets = musicSheetsStore.getValue;
+export const getAllStarredSheets = starredSheetsStore.getValue;
 
 /** 更新默认歌单变化 */
 const refreshFavCbs = new Set<() => void>();

@@ -12,6 +12,6 @@
     },
     "types": ["node"]
   },
-  "include": ["src/**/*.ts", "src/**/*.tsx", "index.js"],
+  "include": ["src/**/*.ts", "src/**/*.tsx", "../src/shared/playlist-exchange/**/*.ts", "index.js"],
   "exclude": ["node_modules", "out", "android", "ios"]
 }

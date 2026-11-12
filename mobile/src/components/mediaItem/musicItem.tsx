@@ -97,6 +97,11 @@ export default function MusicItem(props: IMusicItemProps) {
                             {!hideDuration && Number(musicItem.duration) > 0 ? ` · ${timeformat(Number(musicItem.duration))}` : ""}
                             {showCounts ? ` · 播放 ${library.count(musicItem)} 次` : ""}
                         </ThemeText>
+                        {musicItem.$$exchangeNeedsLocalFile && (
+                            <ThemeText fontSize="description" fontColor="notification">
+                                · 需要补充本地文件
+                            </ThemeText>
+                        )}
                     </View>
                 }
             />

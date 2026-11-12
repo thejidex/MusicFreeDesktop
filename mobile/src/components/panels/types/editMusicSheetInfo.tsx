@@ -15,7 +15,7 @@ import useColors from "@/hooks/useColors.ts";
 import { addFileScheme, addRandomHash } from "@/utils/fileUtils.ts";
 import rpx from "@/utils/rpx";
 import Toast from "@/utils/toast.ts";
-import { readAsStringAsync } from "expo-file-system";
+import { readAsStringAsync } from "expo-file-system/legacy";
 import React, { useState } from "react";
 import { StyleSheet, TouchableOpacity, View } from "react-native";
 import { exists, unlink, writeFile } from "react-native-fs";

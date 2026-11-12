@@ -66,13 +66,17 @@ export default function MySheets() {
                                 }
                             }}
                             onContextMenu={(e) => {
-                                if (item.id === defaultSheet.id) {
-                                    return;
-                                }
                                 showContextMenu({
                                     x: e.clientX,
                                     y: e.clientY,
                                     menuItems: [
+                                        {
+                                            title: "发送到手机…",
+                                            icon: "playlist",
+                                            onClick() {
+                                                showModal("SendToPhone", { initialSheetId: item.id });
+                                            },
+                                        },
                                         {
                                             title: t("side_bar.rename_sheet"),
                                             icon: "pencil-square",

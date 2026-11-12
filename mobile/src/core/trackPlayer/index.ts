@@ -417,6 +417,13 @@ class TrackPlayer extends EventEmitter<{
             if (!musicItem) {
                 throw new Error(PlayFailReason.PLAY_LIST_IS_EMPTY);
             }
+            if (musicItem.$$exchangeNeedsLocalFile) {
+                showDialog("SimpleDialog", {
+                    title: "本地音频文件未传输",
+                    content: "这首歌的歌单条目已导入，但源电脑上的音频文件没有随歌单传输。请重新接收并选择传输本地音频，或在手机本地音乐中补充对应文件。",
+                });
+                return;
+            }
             // 1. 移动网络禁止播放
             const localPath = getLocalPath(musicItem);
             if (

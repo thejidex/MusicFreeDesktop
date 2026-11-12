@@ -235,6 +235,63 @@ class MusicSheetClazz implements IInjectable {
         })) as IMusic.IMusicSheetItem[];
     }
 
+    getStarredSheets() {
+        return [...getDefaultStore().get(starredMusicSheetsAtom)];
+    }
+
+    /** Persist a fully staged exchange state, restoring the previous snapshot if any write fails. */
+    async applyExchangeState(
+        nextSheets: IMusic.IMusicSheetItem[],
+        nextStarredSheets: IMusic.IMusicSheetItem[],
+    ) {
+        const previousSheets = this.backupSheets();
+        const previousStarredSheets = this.getStarredSheets();
+        const previousIds = new Set(previousSheets.map(sheet => sheet.id));
+        try {
+            for (const sheet of nextSheets) {
+                await storage.setMusicList(sheet.id, sheet.musicList || []);
+            }
+            for (const oldSheet of previousSheets) {
+                if (!nextSheets.some(sheet => sheet.id === oldSheet.id)) {
+                    storage.removeMusicList(oldSheet.id);
+                }
+            }
+            await storage.setSheets(nextSheets.map(({ musicList, ...base }) => ({
+                ...base,
+                worksNum: musicList?.length || 0,
+            })));
+            await storage.setStarredSheets(nextStarredSheets);
+        } catch (error) {
+            for (const sheet of previousSheets) {
+                await storage.setMusicList(sheet.id, sheet.musicList || []);
+            }
+            for (const sheet of nextSheets) {
+                if (!previousIds.has(sheet.id)) storage.removeMusicList(sheet.id);
+            }
+            await storage.setSheets(previousSheets.map(({ musicList, ...base }) => ({
+                ...base,
+                worksNum: musicList?.length || 0,
+            })));
+            await storage.setStarredSheets(previousStarredSheets);
+            throw error;
+        }
+
+        musicListMap.clear();
+        for (const sheet of nextSheets) {
+            const sortType = storage.getSheetMeta(sheet.id, "sort") as SortType || SortType.None;
+            musicListMap.set(sheet.id, new SortedMusicList(sheet.musicList || [], sortType, true));
+        }
+        getDefaultStore().set(
+            musicSheetsBaseAtom,
+            nextSheets.map(({ musicList, ...base }) => ({ ...base, worksNum: musicList?.length || 0 })),
+        );
+        getDefaultStore().set(starredMusicSheetsAtom, nextStarredSheets);
+        for (const sheet of nextSheets) {
+            ee.emit("UpdateMusicList", { sheetId: sheet.id, updateType: "length" });
+            ee.emit("UpdateSheetBasic", { sheetId: sheet.id });
+        }
+    }
+
 
     async resumeSheets(
         sheets: IMusic.IMusicSheetItem[],

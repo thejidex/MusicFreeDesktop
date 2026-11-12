@@ -17,6 +17,8 @@ import PluginSheetDetail from "@/pages/pluginSheetDetail";
 import History from "@/pages/history";
 import SetCustomTheme from "@/pages/setCustomTheme";
 import Permissions from "@/pages/permissions";
+import PlaylistExchangePreview from "@/pages/playlistExchangePreview";
+import PlaylistExchangeReceive from "@/pages/playlistExchangeReceive";
 import { ROUTE_PATH } from "@/core/router/index.ts";
 
 type ValueOf<T> = T[keyof T];
@@ -104,5 +106,13 @@ export const routes: Array<IRoutes> = [
     {
         path: ROUTE_PATH.PERMISSIONS,
         component: Permissions,
+    },
+    {
+        path: ROUTE_PATH.PLAYLIST_EXCHANGE_PREVIEW,
+        component: PlaylistExchangePreview,
+    },
+    {
+        path: ROUTE_PATH.PLAYLIST_EXCHANGE_RECEIVE,
+        component: PlaylistExchangeReceive,
     },
 ];

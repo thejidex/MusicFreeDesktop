@@ -44,6 +44,32 @@ export class PlayCounts {
         return this.countsStore.getValue().get(playCountKey(item)) ?? 0;
     }
 
+    async setCount(item: IMedia.IMediaBase, count: number) {
+        if (!item?.platform || item.id === undefined || item.id === null || !Number.isFinite(count) || count < 0) return;
+        await this.setup();
+        const value = Math.floor(count);
+        await this.db.counts.put({ platform: item.platform, id: String(item.id), count: value });
+        this.countsStore.setValue(previous => new Map(previous).set(playCountKey(item), value));
+    }
+
+    async snapshot() {
+        await this.setup();
+        return new Map(this.countsStore.getValue());
+    }
+
+    async restoreExact(snapshot: ReadonlyMap<string, number>) {
+        await this.setup();
+        const records = [...snapshot].map(([key, count]) => {
+            const [platform, id] = JSON.parse(key) as [string, string];
+            return { platform, id, count };
+        });
+        await this.db.transaction("rw", this.db.counts, async () => {
+            await this.db.counts.clear();
+            await this.db.counts.bulkPut(records);
+        });
+        this.countsStore.setValue(new Map(snapshot));
+    }
+
     async recordPlay(item: IMedia.IMediaBase) {
         if (!item?.platform || item.id === undefined || item.id === null) return;
         const { platform, id } = item;

@@ -69,7 +69,7 @@ export default function SortableFlatList<T extends any = any>(
     const activeRef = useRef(-1);
     const [activeItem, setActiveItem] = useState<T | null>(null);
 
-    const layoutRef = useRef<LayoutRectangle>();
+    const layoutRef = useRef<LayoutRectangle | undefined>(undefined);
     // listref
     const listRef = useRef<FlashList<T> | null>(null);
     // fakeref
@@ -159,7 +159,9 @@ export default function SortableFlatList<T extends any = any>(
         <View style={globalStyle.fwflex1}>
             {/* 纯展示 */}
             <FakeFlatListItem
-                ref={_ => (fakeItemRef.current = _)}
+                ref={ref => {
+                    fakeItemRef.current = ref;
+                }}
                 backgroundColor={activeBackgroundColor}
                 renderItem={renderItem}
                 itemHeight={itemHeight}
